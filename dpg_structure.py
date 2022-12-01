@@ -64,9 +64,9 @@ with dpg.window(label="Main", tag="Main"):
 
                 ## Test Parameters Section ##
                 headers.append(dpg.add_text("Test Parameters"))
-                dpg.add_input_text(label="X-Section Area", decimal=True)
-                dpg.add_input_text(label="Width", decimal=True)
-                dpg.add_input_text(label="Height", decimal=True)
+                dpg.add_input_text(label="X-Section Area", decimal=True, callback=print_value)
+                dpg.add_input_text(label="Width", decimal=True, callback=print_value)
+                dpg.add_input_text(label="Height", decimal=True, callback=print_value)
                 dpg.add_text("Stopping method:")
                 with dpg.group(horizontal=True):
                     dpg.add_radio_button(("Force Based", "Displacement Based"), callback=print_value, horizontal=True)
@@ -78,28 +78,28 @@ with dpg.window(label="Main", tag="Main"):
                 headers.append(dpg.add_text("Move Crosshead"))
                 dpg.add_radio_button(("Fast", "Med", "Slow"), callback=print_value, horizontal=True)
                 with dpg.group(horizontal=True):
-                    dpg.add_button(label="Move UP")
-                    dpg.add_button(label="Move DOWN")
-                    dpg.add_button(label="STOP")
+                    dpg.add_button(label="Move UP", callback=print_me)
+                    dpg.add_button(label="Move DOWN", callback=print_me)
+                    dpg.add_button(label="STOP", callback=print_me)
                 headers.append(dpg.add_text("Initialize Machine"))
                 with dpg.group(horizontal=True):
-                    dpg.add_button(label="Zero Force")
-                    dpg.add_button(label="Zero Displacement")
+                    dpg.add_button(label="Zero Force", callback=print_me)
+                    dpg.add_button(label="Zero Displacement", callback=print_me)
                 headers.append(dpg.add_text("Run Test"))
                 with dpg.group(horizontal=True):
-                    dpg.add_button(label="BEGIN")
-                    dpg.add_button(label="PAUSE")
-                    # dpg.add_button(label="RESUME")
-                    dpg.add_button(label="STOP")
+                    dpg.add_button(label="BEGIN", callback=print_me)
+                    dpg.add_button(label="PAUSE", callback=print_me)
+                    # dpg.add_button(label="RESUME", callback=print_me)
+                    dpg.add_button(label="STOP", callback=print_me)
                 headers.append(dpg.add_text("Results"))
                 with dpg.group():
-                    dpg.add_checkbox(label="Export Graphs", default_value=True)
-                    dpg.add_checkbox(label="Export Test Parameters")
+                    dpg.add_checkbox(label="Export Graphs", default_value=True, callback=print_value)
+                    dpg.add_checkbox(label="Export Test Parameters", callback=print_me)
                     dpg.add_text("Export Directory:")
                     with dpg.group(horizontal=True):
                         dpg.add_input_text(default_value="~/tensile_results/", readonly=True, width=250)
-                        dpg.add_button(label="Browse")
-                    dpg.add_button(label="Export Results")
+                        dpg.add_button(label="Browse", callback=print_me)
+                    dpg.add_button(label="Export Results", callback=print_me)
             # with dpg.table(header_row=True, row_background=True, borders_innerH=False, borders_outerH=False, borders_innerV=False, borders_outerV=False):
             with dpg.group(label="col2"):
                 with dpg.plot(label="Force & Displacement", height=300, width=-1):

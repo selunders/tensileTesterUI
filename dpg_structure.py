@@ -16,11 +16,11 @@ def switchCutoffMethod(str):
 dpg.create_context()
 
 with dpg.font_registry():
-    default_font = dpg.add_font("fonts/DMMono-Regular.ttf", 20)
-    header_font = dpg.add_font("fonts/DMMono-Regular.ttf", 25)
+    default_font = dpg.add_font("fonts/DMMono-Regular.ttf", 18)
+    header_font = dpg.add_font("fonts/DMMono-Regular.ttf", 28)
     second_font = dpg.add_font("fonts/SourceCodePro-LightItalic.ttf", 10)
 
-#### Menu
+# ### Menu
 # with dpg.viewport_menu_bar():
 #     with dpg.menu(label="File"):
 #         dpg.add_menu_item(label="Save", callback=print_me)
@@ -36,7 +36,7 @@ with dpg.font_registry():
 #         dpg.add_checkbox(label="Pick Me", callback=print_me)
 #         dpg.add_button(label="Press Me", callback=print_me)
 #         dpg.add_color_picker(label="Color Me", callback=print_me)
-###
+# ##
 
 #### SAMPLE DATA for plot
 sindatax = []
@@ -52,8 +52,8 @@ headers = []
 
 with dpg.window(label="Main", tag="Main"):
     with dpg.table(header_row=False, row_background=False, borders_innerH=False, borders_outerH=False, borders_innerV=False, borders_outerV=False, resizable=True):
-        dpg.add_table_column(label="Column 1")
-        dpg.add_table_column(label="Column 2")
+        dpg.add_table_column(label="")
+        dpg.add_table_column(label="")
 
         # Two Columns, one Row
 
@@ -102,20 +102,20 @@ with dpg.window(label="Main", tag="Main"):
                     dpg.add_button(label="Export Results", callback=print_me)
             # with dpg.table(header_row=True, row_background=True, borders_innerH=False, borders_outerH=False, borders_innerV=False, borders_outerV=False):
             with dpg.group(label="col2"):
-                with dpg.plot(label="Force & Displacement", height=300, width=-1):
+                with dpg.plot(label="", height=400, width=-1):
                             # optionally create legend
                             # dpg.add_plot_legend()
                             # REQUIRED: create x and y axes
-                            dpg.add_plot_axis(dpg.mvXAxis, label="Time (s)")
-                            with dpg.plot_axis(dpg.mvYAxis, label=""):
+                            dpg.add_plot_axis(dpg.mvXAxis, label="Displacement")
+                            with dpg.plot_axis(dpg.mvYAxis, label="Force"):
                                 # series belong to a y axis
                                 dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
-                with dpg.plot(label="Temperature", height=200, width=-1):
+                with dpg.plot(label="", height=300, width=-1):
                             # dpg.add_plot_legend()
                             dpg.add_plot_axis(dpg.mvXAxis, label="Time (s)")
                             with dpg.plot_axis(dpg.mvYAxis, label="Temp (°C)"):
                                 dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
-                with dpg.plot(label="Stress/Strain Curve", height=200, width=-1):
+                with dpg.plot(label="", height=300, width=-1):
                             # dpg.add_plot_legend()
                             dpg.add_plot_axis(dpg.mvXAxis, label="Strain")
                             with dpg.plot_axis(dpg.mvYAxis, label="Stress"):

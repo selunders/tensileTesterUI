@@ -16,9 +16,9 @@ def switchCutoffMethod(str):
 dpg.create_context()
 
 with dpg.font_registry():
-    default_font = dpg.add_font("fonts/DMMono-Regular.ttf", 18)
-    header_font = dpg.add_font("fonts/DMMono-Regular.ttf", 28)
-    second_font = dpg.add_font("fonts/SourceCodePro-LightItalic.ttf", 10)
+    default_font = dpg.add_font("./fonts/DMMono-Regular.ttf", 18)
+    header_font = dpg.add_font("./fonts/DMMono-Regular.ttf", 28)
+    second_font = dpg.add_font("./fonts/SourceCodePro-LightItalic.ttf", 10)
 
 # ### Menu
 # with dpg.viewport_menu_bar():
@@ -94,7 +94,7 @@ with dpg.window(label="Main", tag="Main"):
                 headers.append(dpg.add_text("Results"))
                 with dpg.group():
                     dpg.add_checkbox(label="Export Graphs", default_value=True, callback=print_value)
-                    dpg.add_checkbox(label="Export Test Parameters", callback=print_me)
+                    dpg.add_checkbox(label="Export Test Parameters", default_value=False, callback=print_value)
                     dpg.add_text("Export Directory:")
                     with dpg.group(horizontal=True):
                         dpg.add_input_text(default_value="~/tensile_results/", readonly=True, width=250)

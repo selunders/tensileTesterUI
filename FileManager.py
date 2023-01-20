@@ -11,8 +11,9 @@ class FileManager:
                 print("Error in function 'load_directory' in FileManager class")
 
     def callback(self, sender, app_data):
-        print(f"{sender} sent {app_data}")
-        output_dir = app_data['file_path_name']
+        # print(f"{sender} sent {app_data}")
+        # print(sender['file_path_name'])
+        output_dir = sender['file_path_name']
         if os.path.exists(output_dir):
             print("Directory exists! Loading information.")
             self.load_directory(output_dir)

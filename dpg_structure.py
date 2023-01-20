@@ -2,6 +2,12 @@ import dearpygui.dearpygui as dpg
 
 from math import sin, cos
 
+dpg.create_context()
+
+from FileManager import FileManager as fm
+
+dpg.add_file_dialog(directory_selector=True, show=False, callback=fm.callback, tag="file_dialog_id", cancel_callback=fm.cancel_callback, height=500)
+
 def print_me(sender):
     print(f"Menu Item: {sender}")
 
@@ -13,12 +19,11 @@ def switchCutoffMethod(str):
     if str == "Force" or str == "Displacement":
         cutoffMethod = str
 
-dpg.create_context()
 
 with dpg.font_registry():
-    default_font = dpg.add_font("./fonts/DMMono-Regular.ttf", 18)
-    header_font = dpg.add_font("./fonts/DMMono-Regular.ttf", 28)
-    second_font = dpg.add_font("./fonts/SourceCodePro-LightItalic.ttf", 10)
+    default_font = dpg.add_font("fonts/DMMono-Regular.ttf", 18)
+    header_font = dpg.add_font("fonts/DMMono-Regular.ttf", 28)
+    second_font = dpg.add_font("fonts/SourceCodePro-LightItalic.ttf", 10)
 
 # ### Menu
 # with dpg.viewport_menu_bar():
@@ -50,6 +55,7 @@ for i in range(100):
 
 headers = []
 
+
 with dpg.window(label="Main", tag="Main"):
     with dpg.table(header_row=False, row_background=False, borders_innerH=False, borders_outerH=False, borders_innerV=False, borders_outerV=False, resizable=True):
         dpg.add_table_column(label="")
@@ -75,22 +81,26 @@ with dpg.window(label="Main", tag="Main"):
                     # dpg.add_input_text(label="Displacement Cutoff", decimal=True)
                 
                 ## Initialization ##
+                dpg.add_separator()
                 headers.append(dpg.add_text("Move Crosshead"))
                 dpg.add_radio_button(("Fast", "Med", "Slow"), callback=print_value, horizontal=True)
                 with dpg.group(horizontal=True):
                     dpg.add_button(label="Move UP", callback=print_me)
                     dpg.add_button(label="Move DOWN", callback=print_me)
                     dpg.add_button(label="STOP", callback=print_me)
+                dpg.add_separator()
                 headers.append(dpg.add_text("Initialize Machine"))
                 with dpg.group(horizontal=True):
                     dpg.add_button(label="Zero Force", callback=print_me)
                     dpg.add_button(label="Zero Displacement", callback=print_me)
+                dpg.add_separator()
                 headers.append(dpg.add_text("Run Test"))
                 with dpg.group(horizontal=True):
                     dpg.add_button(label="BEGIN", callback=print_me)
                     dpg.add_button(label="PAUSE", callback=print_me)
                     # dpg.add_button(label="RESUME", callback=print_me)
                     dpg.add_button(label="STOP", callback=print_me)
+                dpg.add_separator()
                 headers.append(dpg.add_text("Results"))
                 with dpg.group():
                     dpg.add_checkbox(label="Export Graphs", default_value=True, callback=print_value)
@@ -98,7 +108,7 @@ with dpg.window(label="Main", tag="Main"):
                     dpg.add_text("Export Directory:")
                     with dpg.group(horizontal=True):
                         dpg.add_input_text(default_value="~/tensile_results/", readonly=True, width=250)
-                        dpg.add_button(label="Browse", callback=print_me)
+                        dpg.add_button(label="Browse", callback=lambda: dpg.show_item("file_dialog_id"))
                     dpg.add_button(label="Export Results", callback=print_me)
             # with dpg.table(header_row=True, row_background=True, borders_innerH=False, borders_outerH=False, borders_innerV=False, borders_outerV=False):
             with dpg.group(label="col2"):
@@ -123,6 +133,7 @@ with dpg.window(label="Main", tag="Main"):
 
     # Set Fonts
     dpg.bind_font(default_font)
+    # We added each header to the headers list as it was created, so we can now easily manage all of them here:
     for header in headers:
         dpg.bind_item_font(header, header_font)
 

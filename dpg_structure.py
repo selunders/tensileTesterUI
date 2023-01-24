@@ -4,7 +4,7 @@ from math import sin, cos
 
 dpg.create_context()
 
-from FileManager import FileManager as fm
+import FileManager as fm
 
 dpg.add_file_dialog(directory_selector=True, show=False, callback=fm.callback, tag="file_dialog_id", cancel_callback=fm.cancel_callback, height=500)
 
@@ -13,6 +13,14 @@ def print_me(sender):
 
 def print_value(sender):
     print(f'Value of {sender}: {dpg.get_value(sender)}')
+
+def export_results(sender):
+    if(dpg.get_value("export_parameters_checkbox") == True):
+        print("Attempting to export test data with parameters")
+        params = fm.ParamData(x_section = 1, width = 1, height = 1)
+        fm.export_data(1, test_params=params)
+    else:
+        fm.export_data(1)
 
 cutoffMethod = "Force" # options: "Force", "Displacement"
 def switchCutoffMethod(str):
@@ -104,12 +112,12 @@ with dpg.window(label="Main", tag="Main"):
                 headers.append(dpg.add_text("Results"))
                 with dpg.group():
                     dpg.add_checkbox(label="Export Graphs", default_value=True, callback=print_value)
-                    dpg.add_checkbox(label="Export Test Parameters", default_value=False, callback=print_value)
+                    dpg.add_checkbox(label="Export Test Parameters", tag="export_parameters_checkbox", default_value=False, callback=print_value)
                     dpg.add_text("Export Directory:")
                     with dpg.group(horizontal=True):
                         dpg.add_input_text(default_value="~/tensile_results/", readonly=True, width=250)
                         dpg.add_button(label="Browse", callback=lambda: dpg.show_item("file_dialog_id"))
-                    dpg.add_button(label="Export Results", callback=print_me)
+                    dpg.add_button(label="Export Results", callback=export_results, tag="export_results_button")
             # with dpg.table(header_row=True, row_background=True, borders_innerH=False, borders_outerH=False, borders_innerV=False, borders_outerV=False):
             with dpg.group(label="col2"):
                 with dpg.plot(label="", height=400, width=-1):

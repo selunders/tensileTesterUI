@@ -17,8 +17,12 @@ def print_value(sender):
 def export_results(sender):
     if(dpg.get_value("export_parameters_checkbox") == True):
         print("Attempting to export test data with parameters")
-        params = fm.ParamData(x_section = 1, width = 1, height = 1)
-        fm.export_data(1, test_params=params)
+        params = fm.ParamData(
+            x_section = dpg.get_value("x_section_param"),
+            width = dpg.get_value("width_param"),
+            height = dpg.get_value("height_param") 
+            )
+        fm.export_data(1, params)
     else:
         fm.export_data(1)
 
@@ -78,9 +82,9 @@ with dpg.window(label="Main", tag="Main"):
 
                 ## Test Parameters Section ##
                 headers.append(dpg.add_text("Test Parameters"))
-                dpg.add_input_text(label="X-Section Area", decimal=True, callback=print_value)
-                dpg.add_input_text(label="Width", decimal=True, callback=print_value)
-                dpg.add_input_text(label="Height", decimal=True, callback=print_value)
+                dpg.add_input_text(label="X-Section Area", decimal=True, callback=print_value, tag="x_section_param")
+                dpg.add_input_text(label="Width", decimal=True, callback=print_value, tag="width_param")
+                dpg.add_input_text(label="Height", decimal=True, callback=print_value, tag="height_param")
                 dpg.add_text("Stopping method:")
                 with dpg.group(horizontal=True):
                     dpg.add_radio_button(("Force Based", "Displacement Based"), callback=print_value, horizontal=True)
@@ -117,7 +121,7 @@ with dpg.window(label="Main", tag="Main"):
                     with dpg.group(horizontal=True):
                         dpg.add_input_text(default_value="~/tensile_results/", readonly=True, width=250)
                         dpg.add_button(label="Browse", callback=lambda: dpg.show_item("file_dialog_id"))
-                    dpg.add_button(label="Export Results", callback=export_results, tag="export_results_button")
+                    dpg.add_button(label="Export Results", callback=export_results)
             # with dpg.table(header_row=True, row_background=True, borders_innerH=False, borders_outerH=False, borders_innerV=False, borders_outerV=False):
             with dpg.group(label="col2"):
                 with dpg.plot(label="", height=400, width=-1):

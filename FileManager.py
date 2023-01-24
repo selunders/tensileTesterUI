@@ -6,6 +6,12 @@ class ParamData:
         self.x_section = x_section
         self.width = width
         self.height = height
+    def __str__(self):
+        return f"""
+        X-Section: {self.x_section}
+        Width: {self.width}
+        Height: {self.height}
+        """
 
 output_directory = None
 

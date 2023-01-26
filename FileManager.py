@@ -19,8 +19,11 @@ def load_directory(output_dir):
         output_directory = output_dir
         if os.path.exists(f"{output_directory}/params.json"):
             get_params_from_file(f"{output_directory}/params.json")
+            print(f"Directory {output_dir} loaded. Params loaded from params.json file.")
         else:
             print(f"Directory {output_dir} loaded. No params.json file located.")
+        dpg.set_value("export_folder_text_box", output_directory)
+
 
 def callback(sender, app_data):
     print(f"{sender} sent {app_data}")

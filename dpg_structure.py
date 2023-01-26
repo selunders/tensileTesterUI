@@ -119,7 +119,7 @@ with dpg.window(label="Main", tag="Main"):
                     dpg.add_checkbox(label="Export Test Parameters", tag="export_parameters_checkbox", default_value=False, callback=print_value)
                     dpg.add_text("Export Directory:")
                     with dpg.group(horizontal=True):
-                        dpg.add_input_text(default_value="~/tensile_results/", readonly=True, width=250)
+                        dpg.add_input_text(default_value="~/tensile_results/", tag="export_folder_text_box",readonly=True, width=250)
                         dpg.add_button(label="Browse", callback=lambda: dpg.show_item("file_dialog_id"))
                     dpg.add_button(label="Export Results", callback=export_results)
             # with dpg.table(header_row=True, row_background=True, borders_innerH=False, borders_outerH=False, borders_innerV=False, borders_outerV=False):

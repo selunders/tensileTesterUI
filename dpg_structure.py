@@ -1,10 +1,14 @@
+# Imports
 import dearpygui.dearpygui as dpg
 
+# Custom Modules
+import FileManager as fm
+
+# Currently this is only used for sample data
 from math import sin, cos
 
 dpg.create_context()
 
-import FileManager as fm
 
 dpg.add_file_dialog(directory_selector=True, show=False, callback=fm.callback, tag="file_dialog_id", cancel_callback=fm.cancel_callback, height=500)
 
@@ -22,9 +26,14 @@ def export_results(sender):
             width = dpg.get_value("width_param"),
             height = dpg.get_value("height_param") 
             )
-        fm.export_data(1, params)
+        fm.export_data("Here's some sample data + params", params)
     else:
-        fm.export_data(1)
+        fm.export_data("Here's some sample data")
+
+def load_params(parameterObject):
+    dpg.set_value("x_section", parameterObject.x_section)
+    dpg.set_value("width", parameterObject.width)
+    dpg.set_value("height", parameterObject.height)
 
 cutoffMethod = "Force" # options: "Force", "Displacement"
 def switchCutoffMethod(str):
@@ -72,12 +81,8 @@ with dpg.window(label="Main", tag="Main"):
     with dpg.table(header_row=False, row_background=False, borders_innerH=False, borders_outerH=False, borders_innerV=False, borders_outerV=False, resizable=True):
         dpg.add_table_column(label="")
         dpg.add_table_column(label="")
-
         # Two Columns, one Row
-
         with dpg.table_row():
-
-            #
             with dpg.group(label="leftColumn"):
 
                 ## Test Parameters Section ##
@@ -119,7 +124,7 @@ with dpg.window(label="Main", tag="Main"):
                     dpg.add_checkbox(label="Export Test Parameters", tag="export_parameters_checkbox", default_value=False, callback=print_value)
                     dpg.add_text("Export Directory:")
                     with dpg.group(horizontal=True):
-                        dpg.add_input_text(default_value="~/tensile_results/", tag="export_folder_text_box",readonly=True, width=250)
+                        dpg.add_input_text(default_value="", tag="export_folder_text_box",readonly=True, width=250)
                         dpg.add_button(label="Browse", callback=lambda: dpg.show_item("file_dialog_id"))
                     dpg.add_button(label="Export Results", callback=export_results)
             # with dpg.table(header_row=True, row_background=True, borders_innerH=False, borders_outerH=False, borders_innerV=False, borders_outerV=False):

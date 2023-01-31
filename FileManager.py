@@ -2,15 +2,17 @@ import dearpygui.dearpygui as dpg
 import os
 
 class ParamData:
-    def __init__(self, x_section = "", width = "", height = ""):
+    def __init__(self, x_section = "", width = "", height = "", cutoff_method=""):
         self.x_section = x_section
         self.width = width
         self.height = height
+        self.cutoff_method = cutoff_method
     def __str__(self):
         return f"""
         X-Section: {self.x_section}
         Width: {self.width}
         Height: {self.height}
+        Cutoff Method: {self.cutoff_method}
         """
 
 output_directory = None

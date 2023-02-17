@@ -65,13 +65,13 @@ with dpg.font_registry():
 # ##
 
 #### SAMPLE DATA for plot
-sindatax = []
-sindatay = []
-cosdatay = []
-for i in range(100):
-    sindatax.append(i/100)
-    sindatay.append(0.5 + 0.5*sin(50*i/100))
-    cosdatay.append(0.5 + 0.75*cos(50*i/100))
+# sindatax = []
+# sindatay = []
+# cosdatay = []
+# for i in range(100):
+#     sindatax.append(i/100)
+#     sindatay.append(0.5 + 0.5*sin(50*i/100))
+#     cosdatay.append(0.5 + 0.75*cos(50*i/100))
 ###
 
 headers = []
@@ -136,17 +136,20 @@ with dpg.window(label="Main", tag="Main"):
                             dpg.add_plot_axis(dpg.mvXAxis, label="Displacement")
                             with dpg.plot_axis(dpg.mvYAxis, label="Force"):
                                 # series belong to a y axis
-                                dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
+                                pass
+                                # dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
                 with dpg.plot(label="", height=300, width=-1):
                             # dpg.add_plot_legend()
                             dpg.add_plot_axis(dpg.mvXAxis, label="Time (s)")
                             with dpg.plot_axis(dpg.mvYAxis, label="Temp (°C)"):
-                                dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
+                                pass
+                                # dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
                 with dpg.plot(label="", height=300, width=-1):
                             # dpg.add_plot_legend()
                             dpg.add_plot_axis(dpg.mvXAxis, label="Strain")
                             with dpg.plot_axis(dpg.mvYAxis, label="Stress"):
-                                dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
+                                pass
+                                # dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
 
     # Set Fonts
     dpg.bind_font(default_font)

@@ -20,4 +20,6 @@ def collect_data(queue, stop_event):
             # print("Rotary data: ", d)
             queue.put(d)
             # data.append(d)
+        # else:
+            # sleep(0.001)
     ser.close()

@@ -28,8 +28,12 @@ def stop_data_collection():
     stop_event.set()
 
 def collect_data(output_array_data, output_array_time):
-    while not data_from_rotary_encoder.empty():
-        next_datapoint = data_from_rotary_encoder.get()
-        # print("Data recieved: ", next_datapoint)
-        output_array_data.append(next_datapoint['rotations'])
-        output_array_time.append(next_datapoint['time'])
+    if data_from_rotary_encoder.empty():
+        return False # No new data to collect
+    else:
+        while not data_from_rotary_encoder.empty():
+            next_datapoint = data_from_rotary_encoder.get()
+            # print("Data recieved: ", next_datapoint)
+            output_array_data.append(next_datapoint['rotations'])
+            output_array_time.append(next_datapoint['time'])
+        return True # There is new data, it was collected

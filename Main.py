@@ -170,9 +170,9 @@ if __name__ == "__main__":
     # dpg.start_dearpygui()
 
     while dpg.is_dearpygui_running():
-        dc.collect_data(rotary_encoder_data, rotary_encoder_time)
-        dpg.set_value('rotary_series_tag', [rotary_encoder_time, rotary_encoder_data])
-        print(rotary_encoder_data)
+        if(dc.collect_data(rotary_encoder_data, rotary_encoder_time)):
+            dpg.set_value('rotary_series_tag', [rotary_encoder_time, rotary_encoder_data])
+            # print(rotary_encoder_data) # For debugging. This much output uses quite a bit of the CPU
         dpg.render_dearpygui_frame()
 
     dc.stop_data_collection()

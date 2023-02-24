@@ -51,3 +51,10 @@ def stopMotor():
     
     GPIO.write(command.encode())
     GPIO.close()
+
+    # Direction
+    # Pausing
+    # Fix axis labels, check
+    # Report some data from the test?
+    # Force cutoff/displacement
+    # Initializing machine

@@ -6,6 +6,8 @@ from multiprocessing import Process, Queue, Event
 import FileManager as fm
 import Data_Collection as dc
 
+import UserTests
+
 if __name__ == "__main__":
     # Data
     rotary_encoder_data = []
@@ -78,6 +80,9 @@ if __name__ == "__main__":
     #     sindatay.append(0.5 + 0.5*sin(50*i/100))
     #     cosdatay.append(0.5 + 0.75*cos(50*i/100))
     ###
+    def FinalizeTest(sender):
+        export_results(sender)
+        UserTests.Print_Results(sender)
 
     headers = []
     dc.begin_data_collection()
@@ -92,29 +97,29 @@ if __name__ == "__main__":
 
                     ## Test Parameters Section ##
                     headers.append(dpg.add_text("Test Parameters"))
-                    dpg.add_input_text(label="X-Section Area", decimal=True, callback=print_value, tag="x_section_param")
-                    dpg.add_input_text(label="Width", decimal=True, callback=print_value, tag="width_param")
-                    dpg.add_input_text(label="Height", decimal=True, callback=print_value, tag="height_param")
+                    dpg.add_input_text(label="X-Section Area", decimal=True, callback=UserTests.HandleUserInput, user_data="xsection_area", tag="x_section_param")
+                    dpg.add_input_text(label="Width", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_width", tag="width_param")
+                    dpg.add_input_text(label="Height", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_height", tag="height_param")
                     dpg.add_text("Stopping method:")
                     with dpg.group(horizontal=True):
-                        dpg.add_radio_button(("Force Based", "Displacement Based"), callback=print_value, horizontal=True)
+                        dpg.add_radio_button(("Force Based", "Displacement Based"), callback=UserTests.HandleUserInput, user_data="stopping_method", horizontal=True)
                     # if cutoffMethod == "Force":
-                    dpg.add_input_text(label="Force Cutoff", decimal=True)
+                    dpg.add_input_text(label="Force Cutoff", decimal=True, callback=UserTests.HandleUserInput, user_data="stopping_force", )
                         # dpg.add_input_text(label="Displacement Cutoff", decimal=True)
                     
                     ## Initialization ##
                     dpg.add_separator()
                     headers.append(dpg.add_text("Move Crosshead"))
-                    dpg.add_radio_button(("Fast", "Med", "Slow"), callback=print_value, horizontal=True)
+                    dpg.add_radio_button(("10mm", "5mm", "1mm"), callback=UserTests.SetMoveSpeed, horizontal=True)
                     with dpg.group(horizontal=True):
-                        dpg.add_button(label="Move UP", callback=print_me)
-                        dpg.add_button(label="Move DOWN", callback=print_me)
+                        dpg.add_button(label="Move UP", callback=UserTests.MoveCrossHeadUp)
+                        dpg.add_button(label="Move DOWN", callback=UserTests.MoveCrossHeadDown)
                         dpg.add_button(label="STOP", callback=print_me)
                     dpg.add_separator()
                     headers.append(dpg.add_text("Initialize Machine"))
                     with dpg.group(horizontal=True):
                         dpg.add_button(label="Zero Force", callback=print_me)
-                        dpg.add_button(label="Zero Displacement", callback=print_me)
+                        dpg.add_button(label="Zero Displacement", callback=UserTests.ZeroDisplacement)
                     dpg.add_separator()
                     headers.append(dpg.add_text("Run Test"))
                     with dpg.group(horizontal=True):
@@ -125,22 +130,24 @@ if __name__ == "__main__":
                     dpg.add_separator()
                     headers.append(dpg.add_text("Results"))
                     with dpg.group():
-                        dpg.add_checkbox(label="Export Graphs", default_value=True, callback=print_value)
-                        dpg.add_checkbox(label="Export Test Parameters", tag="export_parameters_checkbox", default_value=False, callback=print_value)
+                        dpg.add_checkbox(label="Export Graphs", default_value=True, callback=UserTests.HandleUserInput, user_data="export_graphs")
+                        dpg.add_checkbox(label="Export Test Parameters", tag="export_parameters_checkbox", default_value=True, callback=UserTests.HandleUserInput, user_data="export_parameters")
                         dpg.add_text("Export Directory:")
                         with dpg.group(horizontal=True):
                             dpg.add_input_text(default_value="", tag="export_folder_text_box",readonly=True, width=250)
                             dpg.add_button(label="Browse", callback=lambda: dpg.show_item("file_dialog_id"))
-                        dpg.add_button(label="Export Results", callback=export_results)
+                        dpg.add_button(label="Export Results", callback=FinalizeTest)
                 # with dpg.table(header_row=True, row_background=True, borders_innerH=False, borders_outerH=False, borders_innerV=False, borders_outerV=False):
                 with dpg.group(label="col2"):
                     with dpg.plot(label="", height=400, width=-1):
                                 # optionally create legend
                                 # dpg.add_plot_legend()
                                 # REQUIRED: create x and y axes
-                                with dpg.plot_axis(dpg.mvXAxis, label="Displacement"):
+                                with dpg.plot_axis(dpg.mvXAxis, label="Displacement", tag="displacement_axis"):
                                     dpg.add_line_series(rotary_encoder_data, rotary_encoder_time, label="Displacement vs Time", tag="rotary_series_tag")
-                                dpg.add_plot_axis(dpg.mvYAxis, label="Force")
+                                    dpg.set_axis_limits_auto("displacement_axis")
+                                dpg.add_plot_axis(dpg.mvYAxis, label="Force", tag="force_axis")
+                                dpg.set_axis_limits_auto("force_axis")
                                     # series belong to a y axis
                                     # dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
                                     # pass

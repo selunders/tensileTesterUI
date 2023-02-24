@@ -1,5 +1,6 @@
 import dearpygui.dearpygui as dpg
 import os
+import UserTests
 
 class ParamData:
     def __init__(self, x_section = "", width = "", height = "", cutoff_method=""):
@@ -25,6 +26,7 @@ def load_directory(output_dir):
         else:
             print(f"Directory {output_dir} loaded. No params.json file located.")
         dpg.set_value("export_folder_text_box", output_directory)
+        UserTests.HandleUserInput("FileManager", output_directory, "export_directory")
 
 
 def callback(sender, app_data):

@@ -7,14 +7,30 @@
 #from the point once the test is done they will choose to either export the graphs or ecxport the test parameters(for future use).
 #They will then choose the directory they want to send the files to and click export rresults to export them
 
+
+
+class PrintC:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+    def print_color(color, string):
+        print(f'{color}{string}{PrintC.ENDC}')
+
 xHeadMoveSpeed_mm = 15
 
 Goals = {
-    "xsection_area" : 20,
-    "sample_width" : 2,
-    "sample_height" : 6,
+    "xsection_area" : "20",
+    "sample_width" : "2",
+    "sample_height" : "6",
     "stopping_method" : "Force Based",
-    "stopping_force" : 7000000,
+    "stopping_force" : "7000000",
     "crosshead_movestep" : 10,
     "crosshead_location" : -10,
     "displacement_zeroed" : True,
@@ -32,7 +48,7 @@ UserScore = {
     "crosshead_movestep" : 10,
     "crosshead_location" : 0,
     "displacement_zeroed" : False,
-    "export_graphs" : 0,
+    "export_graphs" : True,
     "export_parameters" : True,
     "export_directory" : 0,
 }
@@ -68,4 +84,9 @@ def ZeroDisplacement(sender):
 def Print_Results(sender):
     print('Test: Goal | User')
     for key in Goals.keys():
-        print(f'{key} : {Goals[key]} | {UserScore[key]}')
+        if Goals[key] == UserScore[key]:
+            PrintC.print_color(PrintC.OKGREEN, f'{key} : {Goals[key]} | {UserScore[key]}')
+            # PrintC.print_color(PrintC.OKCYAN, f'{key} : {Goals[key]} | {UserScore[key]}')
+        else:
+            PrintC.print_color(PrintC.FAIL, f'{key} : {Goals[key]} | {UserScore[key]}')
+            

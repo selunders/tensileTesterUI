@@ -7,6 +7,7 @@ import FileManager as fm
 import Data_Collection as dc
 
 import UserTests
+import UserHelp
 
 if __name__ == "__main__":
     # Data
@@ -54,7 +55,7 @@ if __name__ == "__main__":
         second_font = dpg.add_font("fonts/SourceCodePro-LightItalic.ttf", 10)
 
     # ### Menu
-    # with dpg.viewport_menu_bar():
+    with dpg.viewport_menu_bar():
     #     with dpg.menu(label="File"):
     #         dpg.add_menu_item(label="Save", callback=print_me)
     #         dpg.add_menu_item(label="Save As", callback=print_me)
@@ -63,7 +64,7 @@ if __name__ == "__main__":
     #             dpg.add_menu_item(label="Setting 1", callback=print_me, check=True)
     #             dpg.add_menu_item(label="Setting 2", callback=print_me)
 
-    #     dpg.add_menu_item(label="Help", callback=print_me)
+        dpg.add_menu_item(label="Help", callback=UserHelp.show_help_popup)
 
     #     with dpg.menu(label="Widget Items"):
     #         dpg.add_checkbox(label="Pick Me", callback=print_me)
@@ -88,6 +89,9 @@ if __name__ == "__main__":
     dc.begin_data_collection()
 
     with dpg.window(label="Main", tag="Main"):
+        dpg.add_spacer()
+        dpg.add_spacer()
+        dpg.add_spacer()
         with dpg.table(header_row=False, row_background=False, borders_innerH=False, borders_outerH=False, borders_innerV=False, borders_outerV=False, resizable=True):
             dpg.add_table_column(label="")
             dpg.add_table_column(label="")
@@ -104,7 +108,7 @@ if __name__ == "__main__":
                     with dpg.group(horizontal=True):
                         dpg.add_radio_button(("Force Based", "Displacement Based"), callback=UserTests.HandleUserInput, user_data="stopping_method", horizontal=True)
                     # if cutoffMethod == "Force":
-                    dpg.add_input_text(label="Force Cutoff", decimal=True, callback=UserTests.HandleUserInput, user_data="stopping_force", )
+                    dpg.add_input_text(label="Force Cutoff (N)", decimal=True, callback=UserTests.HandleUserInput, user_data="stopping_force", )
                         # dpg.add_input_text(label="Displacement Cutoff", decimal=True)
                     
                     ## Initialization ##

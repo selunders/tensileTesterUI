@@ -99,25 +99,25 @@ if __name__ == "__main__":
             with dpg.table_row():
                 with dpg.group(label="leftColumn"):
 
-                    ## Test Parameters Section ##
+                    ## Specimen Parameters Section ##
+                    headers.append(dpg.add_text("Specimen Parameters"))
+                    dpg.add_input_text(label="(mm²) X-Section Area", decimal=True, callback=UserTests.HandleUserInput, user_data="xsection_area", tag="x_section_param")
+                    dpg.add_input_text(label="(mm) Width", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_width", tag="width_param")
+                    dpg.add_input_text(label="(mm) Height", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_height", tag="height_param")
+                    
+                    ## Initialization ##
+                    dpg.add_separator()
                     headers.append(dpg.add_text("Test Parameters"))
-                    dpg.add_input_text(label="X-Section Area", decimal=True, callback=UserTests.HandleUserInput, user_data="xsection_area", tag="x_section_param")
-                    dpg.add_input_text(label="Width", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_width", tag="width_param")
-                    dpg.add_input_text(label="Height", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_height", tag="height_param")
                     dpg.add_text("Stopping method:")
                     with dpg.group(horizontal=True):
                         dpg.add_radio_button(("Force Based", "Displacement Based"), callback=UserTests.HandleUserInput, user_data="stopping_method", horizontal=True)
                     # if cutoffMethod == "Force":
-                    dpg.add_input_text(label="Force Cutoff (N)", decimal=True, callback=UserTests.HandleUserInput, user_data="stopping_force", )
+                    dpg.add_input_text(label="(N) Force Cutoff", decimal=True, callback=UserTests.HandleUserInput, user_data="stopping_force", )
                         # dpg.add_input_text(label="Displacement Cutoff", decimal=True)
-                    
-                    ## Initialization ##
-                    dpg.add_separator()
-                    headers.append(dpg.add_text("Move Crosshead"))
-                    dpg.add_radio_button(("10mm", "5mm", "1mm"), callback=UserTests.SetMoveSpeed, horizontal=True)
+                    dpg.add_radio_button(("10mm/s", "5mm/s", "1mm/s"), callback=UserTests.SetMoveSpeed, horizontal=True)
                     with dpg.group(horizontal=True):
-                        dpg.add_button(label="Move UP", callback=UserTests.MoveCrossHeadUp)
-                        dpg.add_button(label="Move DOWN", callback=UserTests.MoveCrossHeadDown)
+                        dpg.add_button(label="Move UP", callback=UserTests.MoveCrossHeadUp, tag='btn_move_up')
+                        dpg.add_button(label="Move DOWN", callback=UserTests.MoveCrossHeadDown, tag='btn_move_down')
                         dpg.add_button(label="STOP", callback=print_me)
                     dpg.add_separator()
                     headers.append(dpg.add_text("Initialize Machine"))
@@ -181,9 +181,20 @@ if __name__ == "__main__":
     # dpg.start_dearpygui()
 
     while dpg.is_dearpygui_running():
+        move_direction = 0
+        # if force >= cutoff, stop!
+        # if displacement >= cutoff, stop!
         if(dc.collect_data(rotary_encoder_data, rotary_encoder_time)):
             dpg.set_value('rotary_series_tag', [rotary_encoder_time, rotary_encoder_data])
-            # print(rotary_encoder_data) # For debugging. This much output uses quite a bit of the CPU
+        if(dpg.is_item_active('btn_move_up')):
+            move_direction = -1
+        elif(dpg.is_item_active('btn_move_down')):
+            move_direction = 1
+        else:
+            move_direction = 0
+        if(move_direction):
+            UserTests.MoveCrossHead(move_direction, dpg.get_delta_time())
+            # print(f"Moving {move_direction}. Time between frames: {dpg.get_delta_time()}")
         dpg.render_dearpygui_frame()
 
     dc.stop_data_collection()

@@ -6,8 +6,8 @@
 #The user will then activate the test and have the option to pasue the test which will pause the machine but nbot pause data collection and or stop the test entirely.
 #from the point once the test is done they will choose to either export the graphs or ecxport the test parameters(for future use).
 #They will then choose the directory they want to send the files to and click export rresults to export them
-
-
+import datetime
+import csv
 
 class PrintC:
     HEADER = '\033[95m'
@@ -30,7 +30,7 @@ Goals = {
     "sample_width" : "2",
     "sample_height" : "6",
     "stopping_method" : "Force Based",
-    "stopping_force" : "7000000",
+    "stopping_force" : "700",
     "crosshead_movestep" : 10,
     "crosshead_location" : -10,
     "displacement_zeroed" : True,
@@ -82,8 +82,16 @@ def ZeroDisplacement(sender):
     print("Displacement Zeroed")
 
 def Print_Results(sender):
+    now = datetime.datetime.now()
+    with open(f'UserTests/userTest_{now.month}_{now.day}_{now.hour}-{now.minute}-{now.second}.txt', 'w') as file:
+        file.write(f"Key Name : Expected | User Input")
+        file.write('\n')
+        for key in Goals.keys():
+            file.write(f"{key}: {Goals[key]} | {UserScore[key]}")
+            file.write('\n')
     print('Test: Goal | User')
     for key in Goals.keys():
+
         if Goals[key] == UserScore[key]:
             PrintC.print_color(PrintC.OKGREEN, f'{key} : {Goals[key]} | {UserScore[key]}')
             # PrintC.print_color(PrintC.OKCYAN, f'{key} : {Goals[key]} | {UserScore[key]}')

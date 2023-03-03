@@ -116,8 +116,8 @@ if __name__ == "__main__":
                         # dpg.add_input_text(label="Displacement Cutoff", decimal=True)
                     dpg.add_radio_button(("10mm/s", "5mm/s", "1mm/s"), callback=UserTests.SetMoveSpeed, horizontal=True)
                     with dpg.group(horizontal=True):
-                        dpg.add_button(label="Move UP", callback=UserTests.MoveCrossHeadUp, tag='btn_move_up')
-                        dpg.add_button(label="Move DOWN", callback=UserTests.MoveCrossHeadDown, tag='btn_move_down')
+                        dpg.add_button(label="Move UP", tag='btn_move_up')
+                        dpg.add_button(label="Move DOWN", tag='btn_move_down')
                         dpg.add_button(label="STOP", callback=print_me)
                     dpg.add_separator()
                     headers.append(dpg.add_text("Initialize Machine"))

@@ -114,6 +114,7 @@ if __name__ == "__main__":
                     # if cutoffMethod == "Force":
                     dpg.add_input_text(label="(N) Force Cutoff", decimal=True, callback=UserTests.HandleUserInput, user_data="stopping_force", )
                         # dpg.add_input_text(label="Displacement Cutoff", decimal=True)
+                    dpg.add_text("Manual Crosshead Controls:")
                     dpg.add_radio_button(("10mm/s", "5mm/s", "1mm/s"), callback=UserTests.SetMoveSpeed, horizontal=True)
                     with dpg.group(horizontal=True):
                         dpg.add_button(label="Move UP", tag='btn_move_up')

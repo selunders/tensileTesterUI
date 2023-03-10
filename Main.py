@@ -5,6 +5,7 @@ from multiprocessing import Process, Queue, Event
 # Custom Modules
 import FileManager as fm
 import Data_Collection as dc
+import MachineInterface as mi
 
 import UserTests
 import UserHelp
@@ -13,7 +14,8 @@ if __name__ == "__main__":
     # Data
     rotary_encoder_data = []
     rotary_encoder_time = []
-
+    
+    motor_is_running = False
 
     dpg.create_context()
 
@@ -46,6 +48,7 @@ if __name__ == "__main__":
     cutoffMethod = "Force" # options: "Force", "Displacement"
     def switchCutoffMethod(str):
         if str == "Force" or str == "Displacement":
+            global cutoffMethod
             cutoffMethod = str
 
 
@@ -102,6 +105,8 @@ if __name__ == "__main__":
                     ## Specimen Parameters Section ##
                     headers.append(dpg.add_text("Specimen Parameters"))
                     dpg.add_input_text(label="(mm²) X-Section Area", decimal=True, callback=UserTests.HandleUserInput, user_data="xsection_area", tag="x_section_param")
+                    dpg.add_input_text(label="COM Port", decimal=False, callback=print_me, tag="GPIO_COM_GUI")
+                    dpg.add_button(label="Init GPIO", callback=mi.get_gpio_info)
                     dpg.add_input_text(label="(mm) Width", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_width", tag="width_param")
                     dpg.add_input_text(label="(mm) Height", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_height", tag="height_param")
                     
@@ -119,7 +124,7 @@ if __name__ == "__main__":
                     with dpg.group(horizontal=True):
                         dpg.add_button(label="Move UP", tag='btn_move_up')
                         dpg.add_button(label="Move DOWN", tag='btn_move_down')
-                        dpg.add_button(label="STOP", callback=print_me)
+                        dpg.add_button(label="STOP", callback=mi.motor_stop)
                     dpg.add_separator()
                     headers.append(dpg.add_text("Initialize Machine"))
                     with dpg.group(horizontal=True):
@@ -188,13 +193,20 @@ if __name__ == "__main__":
         if(dc.collect_data(rotary_encoder_data, rotary_encoder_time)):
             dpg.set_value('rotary_series_tag', [rotary_encoder_time, rotary_encoder_data])
         if(dpg.is_item_active('btn_move_up')):
-            move_direction = -1
+            if not motor_is_running:
+                 motor_is_running = True
+                 mi.motor_up()
         elif(dpg.is_item_active('btn_move_down')):
-            move_direction = 1
+            if not motor_is_running:
+                 motor_is_running = True
+                 mi.motor_down()
         else:
-            move_direction = 0
+            if motor_is_running:
+                 mi.motor_stop()
+                 motor_is_running = False
         if(move_direction):
-            UserTests.MoveCrossHead(move_direction, dpg.get_delta_time())
+            pass
+            # UserTests.MoveCrossHead(move_direction, dpg.get_delta_time())
             # print(f"Moving {move_direction}. Time between frames: {dpg.get_delta_time()}")
         dpg.render_dearpygui_frame()
 

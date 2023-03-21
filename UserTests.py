@@ -80,7 +80,7 @@ def MoveCrossHeadDown(sender):
 def ZeroDisplacement(sender):
     UserScore["displacement_zeroed"] = True
     UserScore["crosshead_location"] = 0
-    print(f'Crosshead at {UserScore["crosshead_location"]}')
+    # print(f'Crosshead at {UserScore["crosshead_location"]}')
     # print("Displacement Zeroed")
 
 # def ZeroForce(sender):
@@ -106,4 +106,4 @@ def Print_Results(sender):
             
 def MoveCrossHead(move_direction, frame_delta):
     UserScore["crosshead_location"] += move_direction * UserScore["crosshead_movestep"] * frame_delta
-    print(f'Crosshead at {UserScore["crosshead_location"]}')
+    # print(f'Crosshead at {UserScore["crosshead_location"]}')

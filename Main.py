@@ -5,7 +5,7 @@ from multiprocessing import Process, Queue, Event
 # Custom Modules
 import FileManager as fm
 import Data_Collection as dc
-import MachineInterface as mi
+import MachineInterface as machine_interface
 
 import UserTests
 import UserHelp
@@ -90,6 +90,7 @@ if __name__ == "__main__":
 
     headers = []
     dc.begin_data_collection()
+    Proc_MachineControls = machine_interface.Proc_MachineController()
 
     with dpg.window(label="Main", tag="Main"):
         dpg.add_spacer()
@@ -187,7 +188,6 @@ if __name__ == "__main__":
     # dpg.start_dearpygui()
 
     while dpg.is_dearpygui_running():
-        move_direction = 0
         # if force >= cutoff, stop!
         # if displacement >= cutoff, stop!
         if(dc.collect_data(rotary_encoder_data, rotary_encoder_time)):
@@ -204,10 +204,6 @@ if __name__ == "__main__":
             if motor_is_running:
                  mi.motor_stop()
                  motor_is_running = False
-        if(move_direction):
-            pass
-            # UserTests.MoveCrossHead(move_direction, dpg.get_delta_time())
-            # print(f"Moving {move_direction}. Time between frames: {dpg.get_delta_time()}")
         dpg.render_dearpygui_frame()
 
     dc.stop_data_collection()

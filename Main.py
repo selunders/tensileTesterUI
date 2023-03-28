@@ -13,6 +13,7 @@ import UserHelp
 if __name__ == "__main__":
     # Data
     rotary_encoder_data = []
+    rotary_encoder_converted_distance = []
     rotary_encoder_time = []
     
     motor_is_running = False
@@ -84,27 +85,21 @@ if __name__ == "__main__":
     #     sindatay.append(0.5 + 0.5*sin(50*i/100))
     #     cosdatay.append(0.5 + 0.75*cos(50*i/100))
     ###
+    def convert_units(sender, app_data):
+        rotary_encoder_converted_distance.clear()
+        dc.conversion_factor = dc.rotation_conversions[app_data]
+        for measurement in rotary_encoder_data:
+            rotary_encoder_converted_distance.append(measurement * dc.conversion_factor)
+
+
     def FinalizeTest(sender):
         export_results(sender)
         UserTests.Print_Results(sender)
 
     headers = []
     event_MachineStop = Event()
-    event_MachineRunCommands = Event()
     event_MachineStop.clear()
-    queue_MachineCommands = Queue()
-    MachineController = machine_interface.Proc_MachineController(queue_MachineCommands, event_MachineStop)
-
-    def InititalizeMachineConnection():
-        if MachineController.is_alive():
-            print("Machine Controller is alive")
-            event_MachineStop.set()
-            MachineController.join()
-            event_MachineStop.clear()
-
-        if MachineController.initGPIO():
-            print("Machine Controller is alive")
-            MachineController.start()
+    machineController = machine_interface.MachineController(event_MachineStop)
     # data_from_rotary_encoder = Queue()
 
     dc.begin_data_collection()
@@ -124,7 +119,7 @@ if __name__ == "__main__":
                     headers.append(dpg.add_text("Specimen Parameters"))
                     dpg.add_input_text(label="(mm²) X-Section Area", decimal=True, callback=UserTests.HandleUserInput, user_data="xsection_area", tag="x_section_param")
                     dpg.add_input_text(label="COM Port", decimal=False, callback=print_value, tag="GPIO_COM_GUI")
-                    dpg.add_button(label="Init GPIO", callback=InititalizeMachineConnection)
+                    dpg.add_button(label="Init GPIO", callback=machineController.initGPIO)
                     dpg.add_input_text(label="(mm) Width", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_width", tag="width_param")
                     dpg.add_input_text(label="(mm) Height", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_height", tag="height_param")
                     
@@ -142,7 +137,7 @@ if __name__ == "__main__":
                     with dpg.group(horizontal=True):
                         dpg.add_button(label="Move UP", tag='btn_move_up')
                         dpg.add_button(label="Move DOWN", tag='btn_move_down')
-                        dpg.add_button(label="STOP", callback=MachineController.emergency_stop)
+                        dpg.add_button(label="STOP", callback=machineController.emergency_stop)
                     dpg.add_separator()
                     headers.append(dpg.add_text("Initialize Machine"))
                     with dpg.group(horizontal=True):
@@ -158,6 +153,9 @@ if __name__ == "__main__":
                     dpg.add_separator()
                     headers.append(dpg.add_text("Results"))
                     with dpg.group():
+                        dpg.add_text("Export Units:")
+                        with dpg.group(horizontal=True):
+                            dpg.add_radio_button(("in", "cm", "mm"), callback=convert_units, horizontal=True)
                         dpg.add_checkbox(label="Export Graphs", default_value=True, callback=UserTests.HandleUserInput, user_data="export_graphs")
                         dpg.add_checkbox(label="Export Test Parameters", tag="export_parameters_checkbox", default_value=True, callback=UserTests.HandleUserInput, user_data="export_parameters")
                         dpg.add_text("Export Directory:")
@@ -207,25 +205,24 @@ if __name__ == "__main__":
     while dpg.is_dearpygui_running():
         # if force >= cutoff, stop!
         # if displacement >= cutoff, stop!
-        if(dc.collect_data(rotary_encoder_data, rotary_encoder_time)):
-            dpg.set_value('rotary_series_tag', [rotary_encoder_time, rotary_encoder_data])
+        if(dc.collect_data(rotary_encoder_data, rotary_encoder_converted_distance, rotary_encoder_time)):
+            dpg.set_value('rotary_series_tag', [rotary_encoder_time, rotary_encoder_converted_distance])
             dpg.fit_axis_data('displacement_axis')
             dpg.fit_axis_data('force_axis')
         if(dpg.is_item_active('btn_move_up')):
             if not motor_is_running:
                  motor_is_running = True
-                 MachineController.motor_up()
+                 machineController.motor_up()
         elif(dpg.is_item_active('btn_move_down')):
             if not motor_is_running:
                  motor_is_running = True
-                 MachineController.motor_down()
+                 machineController.motor_down()
         else:
             if motor_is_running:
-                 MachineController.motor_stop()
+                 machineController.motor_stop()
                  motor_is_running = False
         dpg.render_dearpygui_frame()
 
     dc.stop_data_collection()
-    MachineController.stopEvent.set()
-    MachineController.join()
+    machineController.stop_process()
     dpg.destroy_context()

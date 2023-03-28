@@ -21,44 +21,50 @@ import MachineCommands as mc
 # GPIO = None 
 # GPIO_IS_INIT = False
 
+def consume_motor_commands(gpio, commandsQueue, stopEvent):
+    while not stopEvent.is_set():
+        # print("Process is running")
+        if not commandsQueue.empty(): # new command to process
+            next_command = commandsQueue.get()
+            next_command(gpio) # these are blocking, so we can wait for them to complete
+        else: # keep running previous command
+            time.sleep(0.01)
+        # run stop code
+    mc.motor_stop(gpio)
+    stopEvent.clear()
+    while not commandsQueue.empty():
+        commandsQueue.get()
 
-class Proc_MachineController(Process):
-    def __init__(self, commandsQueue, stopEvent):
-        super(Proc_MachineController, self).__init__()
-        self.commandsQueue = commandsQueue
+class MachineController():
+    def __init__(self, stopEvent):
+        self.commandsQueue = Queue()
         self.stopEvent = stopEvent
         self.GPIO = None
         self.GPIO_COM = None
-        self.GPIO_IS_INIT = Event()
-        self.GPIO_IS_INIT.clear()
-
-    def run(self):
-        while not self.stopEvent.is_set():
-            # print("Process is running")
-            if not self.commandsQueue.empty(): # new command to process
-                next_command = self.commandsQueue.get()
-                if not self.GPIO_IS_INIT.is_set():
-                    print("ERROR(MachineInterface.py run()): GPIO is not initialized")
-                    continue
-                next_command(self) # these are blocking, so we can wait for them to complete
-            else: # keep running previous command
-                time.sleep(0.01)
-        # run stop code
-        mc.motor_stop()
-        self.stopEvent.clear()
-        self.commandsQueue.clear()
+        self.GPIO_IS_INIT = False
+        self.p = None
 
     def initGPIO(self):
         self.GPIO_COM = "COM"+str(dpg.get_value("GPIO_COM_GUI"))
+        if self.p != None :
+            self.stopEvent.set()
+            print("Joining machine command consumer")
+            self.p.join()
+            self.p = None
+            self.stopEvent.clear()
         try:
             self.GPIO = serial.Serial(self.GPIO_COM, 19200, timeout=1)
             self.GPIO.close()
-            self.GPIO_IS_INIT.set()
+            self.GPIO_IS_INIT = True
             print(f'GPIO_COM is {self.GPIO_COM}, GPIO is {self.GPIO}')
-            return True
+
+            self.p = Process(target = consume_motor_commands, name = "__child__", args = (self.GPIO, self.commandsQueue, self.stopEvent))        
+            self.p.start()
+            print("Consuming machine commands")
         except:
+            self.GPIO_IS_INIT = False
             print(f'ERROR(MachineInterface.py): Unable to initialize GPIO at port {self.GPIO_COM}')
-            return False
+
 
     def motor_up(self):
         print("Moving motor up")
@@ -68,10 +74,14 @@ class Proc_MachineController(Process):
         self.commandsQueue.put(mc.motor_down)
     def motor_stop(self):
         print("Stopping Motor")
+        while not self.commandsQueue.empty():
+            self.commandsQueue.get()
         self.commandsQueue.put(mc.motor_stop)
     def emergency_stop(self):
         print("EMERGENCY STOP")
         self.stopEvent.set() # tells process to stop
 
-    def run_commands(self):
-        self.stopEvent.clear()
+    def stop_process(self):
+        if self.p != None:
+            self.stopEvent.set()
+            self.p.join()

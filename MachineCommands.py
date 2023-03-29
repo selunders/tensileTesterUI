@@ -12,7 +12,7 @@ def motor_down(GPIO):
     # if not GPIO_IS_INIT:
     #     print("GPIO not initialized")
     #     return
-    clutchPin = 11
+    clutchPin = 11 #clutch number 1
     GPIO.open()
 
     command = "gpio set " + chr(55 + int(clutchPin)) + "\r"
@@ -25,14 +25,14 @@ def motor_down(GPIO):
     GPIO.write(command.encode())
 
     time.sleep(sleepGPIO)
-    
+    # 
     GPIO.close()
 
 def motor_up(GPIO):
     # if not GPIO_IS_INIT:
     #     print("GPIO not initialized")
     #     return
-    clutchPin = 14
+    clutchPin = 14 # clutch number 4
     GPIO.open()
 
     command = "gpio set " + chr(55 + int(clutchPin)) + "\r"

@@ -15,7 +15,7 @@ if __name__ == "__main__":
     rotary_encoder_data = []
     rotary_encoder_converted_distance = []
     rotary_encoder_time = []
-    
+    loadcell_data = []
     motor_is_running = False
 
     dpg.create_context()
@@ -137,7 +137,7 @@ if __name__ == "__main__":
                     with dpg.group(horizontal=True):
                         dpg.add_button(label="Move UP", tag='btn_move_up')
                         dpg.add_button(label="Move DOWN", tag='btn_move_down')
-                        dpg.add_button(label="STOP", callback=machineController.emergency_stop)
+                        dpg.add_button(label="STOP", callback=machineController.motor_stop)
                     dpg.add_separator()
                     headers.append(dpg.add_text("Initialize Machine"))
                     with dpg.group(horizontal=True):

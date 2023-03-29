@@ -6,6 +6,7 @@ from multiprocessing import Process, Queue, Event
 import FileManager as fm
 import Data_Collection as dc
 import MachineInterface as machine_interface
+import LoadCell as load_cell
 
 import UserTests
 import UserHelp
@@ -91,7 +92,6 @@ if __name__ == "__main__":
         for measurement in rotary_encoder_data:
             rotary_encoder_converted_distance.append(measurement * dc.conversion_factor)
 
-
     def FinalizeTest(sender):
         export_results(sender)
         UserTests.Print_Results(sender)
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     machineController = machine_interface.MachineController(event_MachineStop)
     # data_from_rotary_encoder = Queue()
 
-    dc.begin_data_collection()
+    dc.begin_re_and_temp_collection()
 
     with dpg.window(label="Main", tag="Main"):
         dpg.add_spacer()
@@ -117,11 +117,14 @@ if __name__ == "__main__":
 
                     ## Specimen Parameters Section ##
                     headers.append(dpg.add_text("Specimen Parameters"))
-                    dpg.add_input_text(label="(mm²) X-Section Area", decimal=True, callback=UserTests.HandleUserInput, user_data="xsection_area", tag="x_section_param")
-                    dpg.add_input_text(label="COM Port", decimal=False, callback=print_value, tag="GPIO_COM_GUI")
-                    dpg.add_button(label="Init GPIO", callback=machineController.initGPIO)
-                    dpg.add_input_text(label="(mm) Width", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_width", tag="width_param")
-                    dpg.add_input_text(label="(mm) Height", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_height", tag="height_param")
+                    dpg.add_input_text(label="(mm²) X-Section Area", decimal=True, callback=UserTests.HandleUserInput, user_data="xsection_area", tag="x_section_param", no_spaces=True)
+                    dpg.add_input_text(label="MachineController COM", decimal=False, callback=print_value, tag="GPIO_COM_GUI", width=25, no_spaces=True)
+                    dpg.add_input_text(label="Load Cell COM", decimal=False, callback=print_value, tag="LOADCELL_COM_GUI", width=25, no_spaces=True)
+                    with dpg.group(horizontal=True):
+                        dpg.add_button(label="Init GPIO", callback=machineController.initGPIO)
+                        dpg.add_button(label="Init LoadCell", callback=dc.init_load_cell)
+                    dpg.add_input_text(label="(mm) Width", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_width", tag="width_param", no_spaces=True)
+                    dpg.add_input_text(label="(mm) Height", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_height", tag="height_param", no_spaces=True)
                     
                     ## Initialization ##
                     dpg.add_separator()
@@ -205,8 +208,8 @@ if __name__ == "__main__":
     while dpg.is_dearpygui_running():
         # if force >= cutoff, stop!
         # if displacement >= cutoff, stop!
-        if(dc.collect_data(rotary_encoder_data, rotary_encoder_converted_distance, rotary_encoder_time)):
-            dpg.set_value('rotary_series_tag', [rotary_encoder_time, rotary_encoder_converted_distance])
+        if(dc.collect_data(rotary_encoder_data, rotary_encoder_converted_distance, rotary_encoder_time, loadcell_data)):
+            dpg.set_value('rotary_series_tag', [loadcell_data, rotary_encoder_converted_distance])
             dpg.fit_axis_data('displacement_axis')
             dpg.fit_axis_data('force_axis')
         if(dpg.is_item_active('btn_move_up')):

@@ -9,6 +9,18 @@ def collect_data(queue, stop_event):
 
     # Read and record the data
     # data = []
+    b = ser.readline()          # read a byte string
+    string_n = b.decode()       # decode byte string into Unicode
+    string = string_n.rstrip()  # remove \n and \r (newlines)
+    flt = string.split('\t')    # this is the character used by the arduino to divide data
+    starting_rotations = 0
+
+    if len(flt) == 2:
+        d = dict(rotations = int(flt[1]), time = float(flt[0]))
+        # print("Rotary data: ", d)
+        starting_rotations = d["rotations"]
+        # queue.put(d)
+        # data.append(d)
     while not stop_event.is_set():
         b = ser.readline()          # read a byte string
         string_n = b.decode()       # decode byte string into Unicode
@@ -16,10 +28,10 @@ def collect_data(queue, stop_event):
         flt = string.split('\t')    # this is the character used by the arduino to divide data
 
         if len(flt) == 2:
-            d = dict(rotations = int(flt[1]), time = float(flt[0]))
+            d = dict(rotations = int(flt[1]) - starting_rotations, time = float(flt[0]))
             # print("Rotary data: ", d)
             queue.put(d)
             # data.append(d)
-        # else:
-            # sleep(0.001)
+        else:
+            sleep(0.001)
     ser.close()

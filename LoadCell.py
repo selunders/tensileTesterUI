@@ -4,18 +4,22 @@ class LoadCellInterface():
     def __init__(self):
         self.LoadCell = None
         self.LoadCell_COM = None
+        self.ZeroCompensation = 0
 
     def init_load_cell(self, loadCell_COM):
-        self.LoadCell_COM = loadCell_COM
+        self.LoadCell_COM = "COM"+str(loadCell_COM)
         try:
             self.LoadCell = serial.Serial(port=self.LoadCell_COM, baudrate=115200, bytesize=8, stopbits=serial.STOPBITS_ONE)
             self.LoadCell.close()
             return True
         except:
-            print(f"ERROR(LoadCell.py): Unable to open LoadCell port {self.LoadCell_COM}")
+            print(f"ERROR(LoadCell.py): Unable to open LoadCell at COM{self.LoadCell_COM}")
             self.LoadCell = None
             self.LoadCell_COM = None
             return False
+
+    def ZeroLoadCell(self, compensationValue):
+        self.ZeroCompensation = compensationValue
 
     def ReadLoadCell(self):
         if self.LoadCell == None:
@@ -36,6 +40,7 @@ class LoadCellInterface():
         # while the last character of the data string is NOT a return character, keep reading data
         while (data.decode("Ascii")[-1] != "\r"):
             data += self.LoadCell.read()
+            # print("Reading data")
         #Close Serial port while not in use
         self.LoadCell.close()
 
@@ -51,3 +56,6 @@ class LoadCellInterface():
         floatData = float(data.decode("Ascii")[0:i])
 
         return floatData
+    
+    def ReadZeroedValue(self):
+        return self.ReadLoadCell() + self.ZeroCompensation

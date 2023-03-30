@@ -21,15 +21,26 @@ stop_event = Event()
 converted_data = Queue()
 data_from_rotary_encoder = Queue()
 loadCell = LC.LoadCellInterface()
+p = None
 
 def init_load_cell():
-    print(dpg.get_value("LOADCELL_COM_GUI"))
+    # print(dpg.get_value("LOADCELL_COM_GUI"))
     loadCell.init_load_cell(dpg.get_value("LOADCELL_COM_GUI"))
 
+def zero_load_cell():
+    loadCell.ZeroLoadCell(-1 * loadCell.ReadLoadCell())
+
 def begin_re_and_temp_collection():
+    global p
+    if p != None:
+        stop_event.set()
+        p.join()
     stop_event.clear()
     p = Process(target = RE.collect_data, name = "__child__", args = (data_from_rotary_encoder, stop_event))
     p.start()
+
+def zero_rotary_encoder():
+    begin_re_and_temp_collection()
 
     # i = 0
     # while not stop_event.is_set():
@@ -48,11 +59,12 @@ def collect_data(output_array_data, converted_output, output_array_time, loadcel
     if data_from_rotary_encoder.empty():
         return False # No new data to collect
     else:
+        load = loadCell.ReadZeroedValue()
         while not data_from_rotary_encoder.empty():
             next_datapoint = data_from_rotary_encoder.get()
             # print("Data recieved: ", next_datapoint)
             output_array_data.append(next_datapoint['rotations'])
             converted_output.append(next_datapoint['rotations'] * conversion_factor)
             output_array_time.append(next_datapoint['time'])
-            loadcell_output.append(loadCell.ReadLoadCell())
+            loadcell_output.append(load)
         return True # There is new data, it was collected

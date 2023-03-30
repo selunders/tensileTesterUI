@@ -13,16 +13,28 @@ import UserHelp
 
 if __name__ == "__main__":
     # Data
+    outputData = []
     rotary_encoder_data = []
     rotary_encoder_converted_distance = []
     rotary_encoder_time = []
     loadcell_data = []
+
+    outputData.append(rotary_encoder_data)
+    outputData.append(rotary_encoder_converted_distance)
+    outputData.append(rotary_encoder_time)
+    outputData.append(loadcell_data)
+    
     motor_is_running = False
+    cutoffMethod = "Force" # options: "Force", "Displacement"
+    event_MachineStop = Event()
+    event_MachineStop.clear()
+    machineController = machine_interface.MachineController(event_MachineStop)
 
     dpg.create_context()
-
-
-    dpg.add_file_dialog(directory_selector=True, show=False, callback=fm.callback, tag="file_dialog_id", cancel_callback=fm.cancel_callback, height=500)
+    
+    dpg_headers = []
+    dpg.add_file_dialog(directory_selector=True, show=False, callback=fm.callback, 
+    tag="file_dialog_id", cancel_callback=fm.cancel_callback, height=500)
 
     def print_me(sender):
         print(f"Menu Item: {sender}")
@@ -47,7 +59,6 @@ if __name__ == "__main__":
         dpg.set_value("width", parameterObject.width)
         dpg.set_value("height", parameterObject.height)
 
-    cutoffMethod = "Force" # options: "Force", "Displacement"
     def switchCutoffMethod(str):
         if str == "Force" or str == "Displacement":
             global cutoffMethod
@@ -76,16 +87,6 @@ if __name__ == "__main__":
     #         dpg.add_button(label="Press Me", callback=print_me)
     #         dpg.add_color_picker(label="Color Me", callback=print_me)
     # ##
-
-    #### SAMPLE DATA for plot
-    # sindatax = []
-    # sindatay = []
-    # cosdatay = []
-    # for i in range(100):
-    #     sindatax.append(i/100)
-    #     sindatay.append(0.5 + 0.5*sin(50*i/100))
-    #     cosdatay.append(0.5 + 0.75*cos(50*i/100))
-    ###
     def convert_units(sender, app_data):
         rotary_encoder_converted_distance.clear()
         dc.conversion_factor = dc.rotation_conversions[app_data]
@@ -96,11 +97,11 @@ if __name__ == "__main__":
         export_results(sender)
         UserTests.Print_Results(sender)
 
-    headers = []
-    event_MachineStop = Event()
-    event_MachineStop.clear()
-    machineController = machine_interface.MachineController(event_MachineStop)
-    # data_from_rotary_encoder = Queue()
+
+    def ResetTest(sender):
+        for dataArray in outputData:
+             dataArray.clear()
+        dc.zero_rotary_encoder()
 
     dc.begin_re_and_temp_collection()
 
@@ -116,7 +117,7 @@ if __name__ == "__main__":
                 with dpg.group(label="leftColumn"):
 
                     ## Specimen Parameters Section ##
-                    headers.append(dpg.add_text("Specimen Parameters"))
+                    dpg_headers.append(dpg.add_text("Specimen Parameters"))
                     dpg.add_input_text(label="(mm²) X-Section Area", decimal=True, callback=UserTests.HandleUserInput, user_data="xsection_area", tag="x_section_param", no_spaces=True)
                     dpg.add_input_text(label="MachineController COM", decimal=False, callback=print_value, tag="GPIO_COM_GUI", width=25, no_spaces=True)
                     dpg.add_input_text(label="Load Cell COM", decimal=False, callback=print_value, tag="LOADCELL_COM_GUI", width=25, no_spaces=True)
@@ -128,7 +129,7 @@ if __name__ == "__main__":
                     
                     ## Initialization ##
                     dpg.add_separator()
-                    headers.append(dpg.add_text("Test Parameters"))
+                    dpg_headers.append(dpg.add_text("Test Parameters"))
                     dpg.add_text("Stopping method:")
                     with dpg.group(horizontal=True):
                         dpg.add_radio_button(("Force Based", "Displacement Based"), callback=UserTests.HandleUserInput, user_data="stopping_method", horizontal=True)
@@ -142,19 +143,20 @@ if __name__ == "__main__":
                         dpg.add_button(label="Move DOWN", tag='btn_move_down')
                         dpg.add_button(label="STOP", callback=machineController.motor_stop)
                     dpg.add_separator()
-                    headers.append(dpg.add_text("Initialize Machine"))
+                    dpg_headers.append(dpg.add_text("Initialize Machine"))
                     with dpg.group(horizontal=True):
-                        dpg.add_button(label="Zero Force", callback=print_me)
-                        dpg.add_button(label="Zero Displacement", callback=UserTests.ZeroDisplacement)
+                        dpg.add_button(label="Zero Force", callback=dc.zero_load_cell)
+                        dpg.add_button(label="Zero Displacement", callback=dc.zero_rotary_encoder)
                     dpg.add_separator()
-                    headers.append(dpg.add_text("Run Test"))
+                    dpg_headers.append(dpg.add_text("Run Test"))
                     with dpg.group(horizontal=True):
+                        dpg.add_button(label="RESET", callback=ResetTest)
                         dpg.add_button(label="BEGIN", callback=print_me)
                         dpg.add_button(label="PAUSE", callback=print_me)
                         # dpg.add_button(label="RESUME", callback=print_me)
                         dpg.add_button(label="STOP", callback=print_me)
                     dpg.add_separator()
-                    headers.append(dpg.add_text("Results"))
+                    dpg_headers.append(dpg.add_text("Results"))
                     with dpg.group():
                         dpg.add_text("Export Units:")
                         with dpg.group(horizontal=True):
@@ -196,7 +198,7 @@ if __name__ == "__main__":
         # Set Fonts
         dpg.bind_font(default_font)
         # We added each header to the headers list as it was created, so we can now easily manage all of them here:
-        for header in headers:
+        for header in dpg_headers:
             dpg.bind_item_font(header, header_font)
 
     dpg.create_viewport(title='Run Tensile Test', width=800, height=750)
@@ -209,7 +211,7 @@ if __name__ == "__main__":
         # if force >= cutoff, stop!
         # if displacement >= cutoff, stop!
         if(dc.collect_data(rotary_encoder_data, rotary_encoder_converted_distance, rotary_encoder_time, loadcell_data)):
-            dpg.set_value('rotary_series_tag', [loadcell_data, rotary_encoder_converted_distance])
+            dpg.set_value('rotary_series_tag', [rotary_encoder_converted_distance,loadcell_data])
             dpg.fit_axis_data('displacement_axis')
             dpg.fit_axis_data('force_axis')
         if(dpg.is_item_active('btn_move_up')):

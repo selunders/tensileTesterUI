@@ -57,7 +57,6 @@ class MachineController():
             self.GPIO.close()
             self.GPIO_IS_INIT = True
             print(f'GPIO_COM is {self.GPIO_COM}, GPIO is {self.GPIO}')
-
             self.p = Process(target = consume_motor_commands, name = "__child__", args = (self.GPIO, self.commandsQueue, self.stopEvent))        
             self.p.start()
             print("Consuming machine commands")

@@ -19,6 +19,9 @@ if __name__ == "__main__":
     rotary_encoder_time = []
     loadcell_data = []
 
+    stress = []
+    strain = []
+
     outputData.append(rotary_encoder_data)
     outputData.append(rotary_encoder_converted_distance)
     outputData.append(rotary_encoder_time)
@@ -117,15 +120,22 @@ if __name__ == "__main__":
                 with dpg.group(label="leftColumn"):
 
                     ## Specimen Parameters Section ##
-                    dpg_headers.append(dpg.add_text("Specimen Parameters"))
-                    dpg.add_input_text(label="(mm²) X-Section Area", decimal=True, callback=UserTests.HandleUserInput, user_data="xsection_area", tag="x_section_param", no_spaces=True)
-                    dpg.add_input_text(label="MachineController COM", decimal=False, callback=print_value, tag="GPIO_COM_GUI", width=25, no_spaces=True)
-                    dpg.add_input_text(label="Load Cell COM", decimal=False, callback=print_value, tag="LOADCELL_COM_GUI", width=25, no_spaces=True)
+                    dpg_headers.append(dpg.add_text("Initialize Machine"))
                     with dpg.group(horizontal=True):
-                        dpg.add_button(label="Init GPIO", callback=machineController.initGPIO)
-                        dpg.add_button(label="Init LoadCell", callback=dc.init_load_cell)
-                    dpg.add_input_text(label="(mm) Width", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_width", tag="width_param", no_spaces=True)
-                    dpg.add_input_text(label="(mm) Height", decimal=True, callback=UserTests.HandleUserInput, user_data="sample_height", tag="height_param", no_spaces=True)
+                        dpg.add_button(label="Init Machine GPIO", callback=machineController.initGPIO)
+                        dpg.add_input_text(label="Machine COM", decimal=False, callback=print_value, tag="GPIO_COM_GUI", width=25, no_spaces=True, default_value=3)
+                    with dpg.group(horizontal=True):
+                        dpg.add_button(label="Init LoadCell GPIO", callback=dc.init_load_cell)
+                        dpg.add_input_text(label="Load Cell COM", decimal=False, callback=print_value, tag="LOADCELL_COM_GUI", width=25, no_spaces=True, default_value=7)
+                    with dpg.group(horizontal=True):
+                        dpg.add_button(label="Zero Force", callback=dc.zero_load_cell)
+                        dpg.add_button(label="Zero Displacement", callback=dc.zero_rotary_encoder)
+                    dpg.add_separator()
+                    dpg_headers.append(dpg.add_text("Specimen Parameters"))
+                    dpg.add_input_text(label="(mm²) X-Section Area", decimal=True, callback=UserTests.HandleUserInput, user_data="xsection_area", tag="x_section_param", width=100, no_spaces=True)
+                    dpg.add_input_text(label="(mm) Width", decimal=True, callback=UserTests.HandleUserInput, user_data="specimen_width", tag="width_param", width=100, no_spaces=True)
+                    dpg.add_input_text(label="(mm) Thickness", decimal=True, callback=UserTests.HandleUserInput, user_data="specimen_thickness", tag="thickness_param", width=100, no_spaces=True)
+                    dpg.add_input_text(label="(mm) Initial Length", decimal=True, callback=UserTests.HandleUserInput, user_data="specimen_length", tag="length_param", width=100, no_spaces=True)
                     
                     ## Initialization ##
                     dpg.add_separator()
@@ -142,11 +152,6 @@ if __name__ == "__main__":
                         dpg.add_button(label="Move UP", tag='btn_move_up')
                         dpg.add_button(label="Move DOWN", tag='btn_move_down')
                         dpg.add_button(label="STOP", callback=machineController.motor_stop)
-                    dpg.add_separator()
-                    dpg_headers.append(dpg.add_text("Initialize Machine"))
-                    with dpg.group(horizontal=True):
-                        dpg.add_button(label="Zero Force", callback=dc.zero_load_cell)
-                        dpg.add_button(label="Zero Displacement", callback=dc.zero_rotary_encoder)
                     dpg.add_separator()
                     dpg_headers.append(dpg.add_text("Run Test"))
                     with dpg.group(horizontal=True):
@@ -182,17 +187,19 @@ if __name__ == "__main__":
                                     # series belong to a y axis
                                     # dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
                                     # pass
-                    with dpg.plot(label="", height=300, width=-1):
-                                # dpg.add_plot_legend()
-                                dpg.add_plot_axis(dpg.mvXAxis, label="Time (s)")
-                                with dpg.plot_axis(dpg.mvYAxis, label="Temp (°C)"):
-                                    pass
+                    # with dpg.plot(label="", height=300, width=-1):
+                    #             # dpg.add_plot_legend()
+                    #             dpg.add_plot_axis(dpg.mvXAxis, label="Time (s)")
+                    #             with dpg.plot_axis(dpg.mvYAxis, label="Temp (°C)"):
+                    #                 pass
                                     # dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
                     with dpg.plot(label="", height=300, width=-1):
                                 # dpg.add_plot_legend()
-                                dpg.add_plot_axis(dpg.mvXAxis, label="Strain")
-                                with dpg.plot_axis(dpg.mvYAxis, label="Stress"):
-                                    pass
+                                with dpg.plot_axis(dpg.mvXAxis, label="Strain", tag="strain_axis"):
+                                    dpg.add_line_series(strain, stress, label="Stress vs Strain", tag="stress_strain_series_tag")
+                                    dpg.set_axis_limits_auto("strain_axis")
+                                dpg.add_plot_axis(dpg.mvYAxis, label="Stress", tag="stress_axis")
+                                dpg.set_axis_limits_auto("stress_axis")
                                     # dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
 
         # Set Fonts
@@ -214,6 +221,13 @@ if __name__ == "__main__":
             dpg.set_value('rotary_series_tag', [rotary_encoder_converted_distance,loadcell_data])
             dpg.fit_axis_data('displacement_axis')
             dpg.fit_axis_data('force_axis')
+
+            stress.append(loadcell_data[-1] / dpg.get_value('x_section_param'))
+            strain.append(rotary_encoder_converted_distance[-1]/dpg.get_value('specimen_length'))
+            dpg.set_value('stress_strain_series_tag', [strain, stress])
+            dpg.fit_axis_data('stress_axis')
+            dpg.fit_axis_data('strain_axis')
+
         if(dpg.is_item_active('btn_move_up')):
             if not motor_is_running:
                  motor_is_running = True

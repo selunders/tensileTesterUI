@@ -37,9 +37,9 @@ def collect_data(re_queue, temp_queue, stop_event):
         if len(flt) == 3:
             d = dict(rotations = int(flt[2]) - starting_rotations, time = float(flt[1]), data = flt[0])
             re_queue.put(d)
-        # elif len(flt) == 4:
-            # d = dict(tempC = float(flt[3]), ambC = float(flt[2]), time = float(flt[1]), data = flt[0])
-            # re_queue.put(d)
+        elif len(flt) == 4:
+            d = dict(tempC = float(flt[2]), ambC = float(flt[3]), time = float(flt[1]), data = flt[0])
+            temp_queue.put(d)
         else:
             sleep(0.001)
     ser.close()

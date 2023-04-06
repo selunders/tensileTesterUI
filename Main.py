@@ -17,6 +17,8 @@ if __name__ == "__main__":
     rotary_encoder_data = []
     rotary_encoder_converted_distance = []
     rotary_encoder_time = []
+    temp_time = []
+    temp_data = []
     loadcell_data = []
 
     stress = []
@@ -122,11 +124,11 @@ if __name__ == "__main__":
                     ## Specimen Parameters Section ##
                     dpg_headers.append(dpg.add_text("Initialize Machine"))
                     with dpg.group(horizontal=True):
-                        dpg.add_button(label="Init Machine GPIO", callback=machineController.initGPIO)
-                        dpg.add_input_text(label="Machine COM", decimal=False, callback=print_value, tag="GPIO_COM_GUI", width=25, no_spaces=True, default_value=3)
-                    with dpg.group(horizontal=True):
                         dpg.add_button(label="Init LoadCell GPIO", callback=dc.init_load_cell)
                         dpg.add_input_text(label="Load Cell COM", decimal=False, callback=print_value, tag="LOADCELL_COM_GUI", width=25, no_spaces=True, default_value=7)
+                    with dpg.group(horizontal=True):
+                        dpg.add_button(label="Init Machine GPIO", callback=machineController.initGPIO)
+                        dpg.add_input_text(label="Machine COM", decimal=False, callback=print_value, tag="GPIO_COM_GUI", width=25, no_spaces=True, default_value=3)
                     with dpg.group(horizontal=True):
                         dpg.add_button(label="Zero Force", callback=dc.zero_load_cell)
                         dpg.add_button(label="Zero Displacement", callback=dc.zero_rotary_encoder)
@@ -179,14 +181,21 @@ if __name__ == "__main__":
                                 # optionally create legend
                                 # dpg.add_plot_legend()
                                 # REQUIRED: create x and y axes
-                                with dpg.plot_axis(dpg.mvXAxis, label="Displacement", tag="displacement_axis"):
+                                with dpg.plot_axis(dpg.mvXAxis, label="Displacement (units)", tag="displacement_axis"):
                                     dpg.add_line_series(rotary_encoder_data, rotary_encoder_time, label="Displacement vs Time", tag="rotary_series_tag")
                                     dpg.set_axis_limits_auto("displacement_axis")
-                                dpg.add_plot_axis(dpg.mvYAxis, label="Force", tag="force_axis")
+                                dpg.add_plot_axis(dpg.mvYAxis, label="Force (N)", tag="force_axis")
                                 dpg.set_axis_limits_auto("force_axis")
                                     # series belong to a y axis
                                     # dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
                                     # pass
+                    with dpg.plot(label="", height=200, width=-1):
+                                # dpg.add_plot_legend()
+                                with dpg.plot_axis(dpg.mvXAxis, label="Time (s)", tag="temp_time_axis"):
+                                    dpg.add_line_series(strain, stress, label="Temp (C) vs Time", tag="temp_time_series_tag")
+                                    dpg.set_axis_limits_auto("temp_time_axis")
+                                dpg.add_plot_axis(dpg.mvYAxis, label="Temp (C)", tag="temp_data_axis")
+                                dpg.set_axis_limits_auto("temp_data_axis")
                     # with dpg.plot(label="", height=300, width=-1):
                     #             # dpg.add_plot_legend()
                     #             dpg.add_plot_axis(dpg.mvXAxis, label="Time (s)")
@@ -195,10 +204,10 @@ if __name__ == "__main__":
                                     # dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
                     with dpg.plot(label="", height=300, width=-1):
                                 # dpg.add_plot_legend()
-                                with dpg.plot_axis(dpg.mvXAxis, label="Strain", tag="strain_axis"):
+                                with dpg.plot_axis(dpg.mvXAxis, label="Strain (Units)", tag="strain_axis"):
                                     dpg.add_line_series(strain, stress, label="Stress vs Strain", tag="stress_strain_series_tag")
                                     dpg.set_axis_limits_auto("strain_axis")
-                                dpg.add_plot_axis(dpg.mvYAxis, label="Stress", tag="stress_axis")
+                                dpg.add_plot_axis(dpg.mvYAxis, label="Stress (Units)", tag="stress_axis")
                                 dpg.set_axis_limits_auto("stress_axis")
                                     # dpg.add_line_series(sindatax, sindatay, label="0.5 + 0.5 * sin(x)")
 
@@ -217,7 +226,7 @@ if __name__ == "__main__":
     while dpg.is_dearpygui_running():
         # if force >= cutoff, stop!
         # if displacement >= cutoff, stop!
-        if(dc.collect_data(rotary_encoder_data, rotary_encoder_converted_distance, rotary_encoder_time, loadcell_data)):
+        if(dc.collect_re_data(rotary_encoder_data, rotary_encoder_converted_distance, loadcell_data)):
             dpg.set_value('rotary_series_tag', [rotary_encoder_converted_distance,loadcell_data])
             dpg.fit_axis_data('displacement_axis')
             dpg.fit_axis_data('force_axis')
@@ -227,6 +236,11 @@ if __name__ == "__main__":
             dpg.set_value('stress_strain_series_tag', [strain, stress])
             dpg.fit_axis_data('stress_axis')
             dpg.fit_axis_data('strain_axis')
+
+        if(dc.collect_temp_data(temp_data, temp_time)):
+             dpg.set_value('temp_time_series_tag', [temp_time, temp_data])
+             dpg.fit_axis_data('temp_time_axis')
+             dpg.fit_axis_data('temp_data_axis')
 
         if(dpg.is_item_active('btn_move_up')):
             if not motor_is_running:

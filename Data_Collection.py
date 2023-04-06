@@ -56,9 +56,9 @@ def zero_rotary_encoder():
 def stop_data_collection():
     stop_event.set()
 
-def collect_data(output_re_array_data, converted_re_output, output_array_time, loadcell_output):
+def collect_re_data(output_re_array_data, converted_re_output, loadcell_output):
     if data_from_rotary_encoder.empty():
-        return False # No new data to collect
+        False
     else:
         load = loadCell.ReadZeroedValue()
         while not data_from_rotary_encoder.empty():
@@ -66,6 +66,16 @@ def collect_data(output_re_array_data, converted_re_output, output_array_time, l
             # print("Data recieved: ", next_datapoint)
             output_re_array_data.append(next_datapoint['rotations'])
             converted_re_output.append(next_datapoint['rotations'] * conversion_factor)
-            output_array_time.append(next_datapoint['time'])
+            # output_array_time.append(next_datapoint['time'])
             loadcell_output.append(load)
+        return True
+
+def collect_temp_data(output_temp_data, output_array_time):
+    if data_from_thermocouple.empty():
+        return False
+    else:
+        while not data_from_thermocouple.empty():
+            next_datapoint = data_from_thermocouple.get()
+            output_temp_data.append(next_datapoint['tempC'])
+            output_array_time.append(next_datapoint['time'])
         return True # There is new data, it was collected

@@ -2,7 +2,7 @@ from multiprocessing import Queue, Event
 import serial
 from time import sleep
 
-def collect_data(queue, stop_event):
+def collect_data(re_queue, temp_queue, stop_event):
     # set up serial line
     ser = serial.Serial('COM10', 9600, timeout=1.0)
     sleep(2)
@@ -36,10 +36,10 @@ def collect_data(queue, stop_event):
 
         if len(flt) == 3:
             d = dict(rotations = int(flt[2]) - starting_rotations, time = float(flt[1]), data = flt[0])
-            queue.put(d)
-        elif len(flt) == 4:
-            d = dict(tempC = float(flt[3]), ambC = float(flt[2]), time = float(flt[1]), data = flt[0])
-            queue.put(d)
+            re_queue.put(d)
+        # elif len(flt) == 4:
+            # d = dict(tempC = float(flt[3]), ambC = float(flt[2]), time = float(flt[1]), data = flt[0])
+            # re_queue.put(d)
         else:
             sleep(0.001)
     ser.close()
@@ -79,11 +79,11 @@ def testIO():
 
         if len(flt) == 3:
             d = dict(rotations = int(flt[2]) - starting_rotations, time = float(flt[1]), data = flt[0])
-            print("Rotary data: ", d)
+            # print("Rotary data: ", d)
             #queue.put(d)
         elif len(flt) == 4:
             d = dict(tempC = float(flt[3]), ambC = float(flt[2]), time = float(flt[1]), data = flt[0])
-            print("Thermocouple data: ", d)
+            # print("Thermocouple data: ", d)
             #queue.put(d)
         else:
             sleep(0.001)

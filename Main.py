@@ -222,8 +222,8 @@ if __name__ == "__main__":
             dpg.fit_axis_data('displacement_axis')
             dpg.fit_axis_data('force_axis')
 
-            stress.append(loadcell_data[-1] / dpg.get_value('x_section_param'))
-            strain.append(rotary_encoder_converted_distance[-1]/dpg.get_value('specimen_length'))
+            stress.append(float(loadcell_data[-1]) / float(dpg.get_value('x_section_param')))
+            strain.append(float(rotary_encoder_converted_distance[-1])/float(dpg.get_value('length_param')))
             dpg.set_value('stress_strain_series_tag', [strain, stress])
             dpg.fit_axis_data('stress_axis')
             dpg.fit_axis_data('strain_axis')

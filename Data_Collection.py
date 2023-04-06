@@ -20,6 +20,7 @@ conversion_factor = rotation_conversions["mm"]
 stop_event = Event()
 converted_data = Queue()
 data_from_rotary_encoder = Queue()
+data_from_thermocouple = Queue()
 loadCell = LC.LoadCellInterface()
 p = None
 
@@ -36,7 +37,7 @@ def begin_re_and_temp_collection():
         stop_event.set()
         p.join()
     stop_event.clear()
-    p = Process(target = RE.collect_data, name = "__child__", args = (data_from_rotary_encoder, stop_event))
+    p = Process(target = RE.collect_data, name = "__child__", args = (data_from_rotary_encoder, data_from_thermocouple, stop_event))
     p.start()
 
 def zero_rotary_encoder():
@@ -55,7 +56,7 @@ def zero_rotary_encoder():
 def stop_data_collection():
     stop_event.set()
 
-def collect_data(output_array_data, converted_output, output_array_time, loadcell_output):
+def collect_data(output_re_array_data, converted_re_output, output_array_time, loadcell_output):
     if data_from_rotary_encoder.empty():
         return False # No new data to collect
     else:
@@ -63,8 +64,8 @@ def collect_data(output_array_data, converted_output, output_array_time, loadcel
         while not data_from_rotary_encoder.empty():
             next_datapoint = data_from_rotary_encoder.get()
             # print("Data recieved: ", next_datapoint)
-            output_array_data.append(next_datapoint['rotations'])
-            converted_output.append(next_datapoint['rotations'] * conversion_factor)
+            output_re_array_data.append(next_datapoint['rotations'])
+            converted_re_output.append(next_datapoint['rotations'] * conversion_factor)
             output_array_time.append(next_datapoint['time'])
             loadcell_output.append(load)
         return True # There is new data, it was collected

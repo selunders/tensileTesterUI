@@ -69,6 +69,22 @@ if __name__ == "__main__":
             global cutoffMethod
             cutoffMethod = str
 
+    def calcSpecimenParams(sender, app_data, user_data):
+        # which_measurement = user_data
+        width, height, x_section, thickness = dpg.get_values(["width_param", "length_param", "x_section_param", "thickness_param"])
+        print(width, height, x_section, thickness)
+        match user_data:
+            case "xsection_area":
+                # dpg.set_value("x_section_param", )
+                pass
+            case "specimen_width":
+                dpg.set_value("x_section_param", float(width) * float(thickness))
+            case "specimen_thickness":
+                dpg.set_value("x_section_param", float(width) * float(thickness))
+            case "specimen_length":
+                pass
+
+
 
     with dpg.font_registry():
         default_font = dpg.add_font("fonts/DMMono-Regular.ttf", 18)
@@ -134,10 +150,10 @@ if __name__ == "__main__":
                         dpg.add_button(label="Zero Displacement", callback=dc.zero_rotary_encoder)
                     dpg.add_separator()
                     dpg_headers.append(dpg.add_text("Specimen Parameters"))
-                    dpg.add_input_text(label="(mm²) X-Section Area", decimal=True, callback=UserTests.HandleUserInput, user_data="xsection_area", tag="x_section_param", width=100, no_spaces=True)
-                    dpg.add_input_text(label="(mm) Width", decimal=True, callback=UserTests.HandleUserInput, user_data="specimen_width", tag="width_param", width=100, no_spaces=True)
-                    dpg.add_input_text(label="(mm) Thickness", decimal=True, callback=UserTests.HandleUserInput, user_data="specimen_thickness", tag="thickness_param", width=100, no_spaces=True)
-                    dpg.add_input_text(label="(mm) Initial Length", decimal=True, callback=UserTests.HandleUserInput, user_data="specimen_length", tag="length_param", width=100, no_spaces=True)
+                    dpg.add_input_text(label="(mm) Initial Length", decimal=True, callback=calcSpecimenParams, user_data="specimen_length", tag="length_param", width=100, no_spaces=True, default_value=1)
+                    dpg.add_input_text(label="(mm) Width", decimal=True, callback=calcSpecimenParams, user_data="specimen_width", tag="width_param", width=100, no_spaces=True, default_value=1)
+                    dpg.add_input_text(label="(mm) Thickness", decimal=True, callback=calcSpecimenParams, user_data="specimen_thickness", tag="thickness_param", width=100, no_spaces=True, default_value=1)
+                    dpg.add_input_text(label="(mm²) X-Section Area", decimal=True, callback=calcSpecimenParams, user_data="xsection_area", tag="x_section_param", width=100, no_spaces=True, default_value=1, readonly=True)
                     
                     ## Initialization ##
                     dpg.add_separator()

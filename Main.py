@@ -75,7 +75,6 @@ if __name__ == "__main__":
         print(width, height, x_section, thickness)
         match user_data:
             case "xsection_area":
-                # dpg.set_value("x_section_param", )
                 pass
             case "specimen_width":
                 dpg.set_value("x_section_param", float(width) * float(thickness))
@@ -255,6 +254,7 @@ if __name__ == "__main__":
 
         if(dc.collect_temp_data(temp_data, temp_time)):
              dpg.set_value('temp_time_series_tag', [temp_time, temp_data])
+             dpg.set_axis_limits('temp_time_axis', max(temp_time) - 5, max(temp_time) + 1)
              dpg.fit_axis_data('temp_time_axis')
              dpg.fit_axis_data('temp_data_axis')
 

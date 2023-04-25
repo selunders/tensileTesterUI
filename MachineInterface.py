@@ -43,6 +43,7 @@ class MachineController():
         self.GPIO_COM = None
         self.GPIO_IS_INIT = False
         self.p = None
+        self.motor_is_running = False
 
     def initGPIO(self):
         self.GPIO_COM = "COM"+str(dpg.get_value("GPIO_COM_GUI"))
@@ -67,18 +68,25 @@ class MachineController():
 
     def motor_up(self):
         print("Moving motor up")
-        self.commandsQueue.put(mc.motor_up)
+        if not self.motor_is_running:
+            self.commandsQueue.put(mc.motor_up)
+            self.motor_is_running = True
     def motor_down(self):
         print("Moving motor down")
-        self.commandsQueue.put(mc.motor_down)
+        if not self.motor_is_running:
+            self.commandsQueue.put(mc.motor_down)
+            self.motor_is_running = True
     def motor_stop(self):
         print("Stopping Motor")
         while not self.commandsQueue.empty():
             self.commandsQueue.get()
         self.commandsQueue.put(mc.motor_stop)
-    def emergency_stop(self):
-        print("EMERGENCY STOP")
-        self.stopEvent.set() # tells process to stop
+        self.motor_is_running = False
+    # def emergency_stop(self):
+        # print("EMERGENCY STOP")
+        # mc.motor_stop()
+        # self.stopEvent.set() # tells process to stop
+        # self.motor_is_running = False 
 
     def stop_process(self):
         if self.p != None:

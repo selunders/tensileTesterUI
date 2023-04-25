@@ -25,7 +25,6 @@ loadCell = LC.LoadCellInterface()
 p = None
 
 def init_load_cell():
-    # print(dpg.get_value("LOADCELL_COM_GUI"))
     loadCell.init_load_cell(dpg.get_value("LOADCELL_COM_GUI"))
 
 def zero_load_cell():
@@ -41,7 +40,8 @@ def begin_re_and_temp_collection():
     p.start()
 
 def zero_rotary_encoder():
-    begin_re_and_temp_collection()
+    pass
+    # begin_re_and_temp_collection()
 
     # i = 0
     # while not stop_event.is_set():

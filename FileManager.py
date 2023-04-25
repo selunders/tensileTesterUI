@@ -19,14 +19,15 @@ class ParamData:
 output_directory = None
 
 def load_directory(output_dir):
+        global output_directory
         output_directory = output_dir
-        if os.path.exists(f"{output_directory}/params.json"):
-            get_params_from_file(f"{output_directory}/params.json")
-            print(f"Directory {output_dir} loaded. Params loaded from params.json file.")
-        else:
-            print(f"Directory {output_dir} loaded. No params.json file located.")
+        # if os.path.exists(f"{output_directory}/params.json"):
+        #     get_params_from_file(f"{output_directory}/params.json")
+        #     print(f"Directory {output_dir} loaded. Params loaded from params.json file.")
+        # else:
+        #     print(f"Directory {output_dir} loaded. No params.json file located.")
         dpg.set_value("export_folder_text_box", output_directory)
-        UserTests.HandleUserInput("FileManager", output_directory, "export_directory")
+        # UserTests.HandleUserInput("FileManager", output_directory, "export_directory")
 
 
 def callback(sender, app_data):
@@ -43,6 +44,14 @@ def callback(sender, app_data):
 
 def cancel_callback(sender, app_data):
     print('Cancel clicked. Not changing directory path.')
+
+def data_to_csv(converted_re_data, rotary_encoder_time, loadcell_data, temp_time, temp_data, stress_data, strain_data):
+    global output_directory
+    with open(f"{output_directory}\\stress_strain.csv", "w") as re_data:
+        re_data.write("Strain,Stress\n")
+        for i in range(len(stress_data)):
+            re_data.write(f"{strain_data[i]},{stress_data[i]}\n")
+        re_data.close()
 
 def export_data(data, test_params=""):
     # print("ERROR(FileManager.export_data): No output directory specified.")

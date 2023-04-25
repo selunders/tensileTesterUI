@@ -1,7 +1,11 @@
 import serial
+LBS_TO_NEWTONS = (1/0.2248089431) 
+LIMIT_LBS = 9000
 
 class LoadCellInterface():
     def __init__(self):
+        self.LOADCELL_LIMIT_LBS = LIMIT_LBS
+        self.LOADCELL_LIMIT_N = LIMIT_LBS * LBS_TO_NEWTONS
         self.LoadCell = None
         self.LoadCell_COM = None
         self.ZeroCompensation = 0
@@ -55,7 +59,7 @@ class LoadCellInterface():
         # get the float from the string
         floatData = float(data.decode("Ascii")[0:i])
 
-        return floatData
+        return floatData * LBS_TO_NEWTONS
     
     def ReadZeroedValue(self):
         return self.ReadLoadCell() + self.ZeroCompensation

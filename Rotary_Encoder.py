@@ -1,11 +1,29 @@
 from multiprocessing import Queue, Event
 import serial
 from time import sleep
+import dearpygui.dearpygui as dpg
 
-def collect_data(re_queue, temp_queue, stop_event):
+class arduino_interface():
+    def __init__(self, stopEvent, rotaryEncoderQueue, tempQueue):
+        self.com_port = None
+        self.com_is_init = None
+        self.gpio_com = None
+        self.stop_event = stopEvent
+        self.re_queue = rotaryEncoderQueue
+        self.temp_queue = tempQueue
+        self.p = None
+
+    def initGPIO(self):
+        self.gpio_com = "COM"+str(dpg.get_value("ARDUINO_COM_GUI"))
+    def start_data_collection():
+        self.re_queue()
+
+def init_ardunio_com_port(sender, app_data, user_data):
     # set up serial line
     ser = serial.Serial('COM10', 9600, timeout=1.0)
     sleep(2)
+
+def collect_data(re_queue, temp_queue, stop_event):
 
     # Read and record the data
     # data = []
@@ -13,7 +31,7 @@ def collect_data(re_queue, temp_queue, stop_event):
     string_n = b.decode()       # decode byte string into Unicode
     string = string_n.rstrip()  # remove \n and \r (newlines)
     flt = string.split('\t')    # \t is the character used by the arduino to divide data
-    starting_rotations = 0
+    # starting_rotations = 0
 
     if len(flt) == 3:
         d = dict(rotations = int(flt[2]), time = float(flt[1]), data = flt[0])
@@ -35,7 +53,8 @@ def collect_data(re_queue, temp_queue, stop_event):
         flt = string.split('\t')    # this is the character used by the arduino to divide data
 
         if len(flt) == 3:
-            d = dict(rotations = int(flt[2]) - starting_rotations, time = float(flt[1]), data = flt[0])
+            # d = dict(rotations = int(flt[2]) - starting_rotations, time = float(flt[1]), data = flt[0])
+            d = dict(rotations = int(flt[2]), time = float(flt[1]), data = flt[0])
             re_queue.put(d)
         elif len(flt) == 4:
             d = dict(tempC = float(flt[2]), ambC = float(flt[3]), time = float(flt[1]), data = flt[0])

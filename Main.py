@@ -38,6 +38,7 @@ if __name__ == "__main__":
     event_MachineStop = Event()
     event_MachineStop.clear()
     machineController = machine_interface.MachineController(event_MachineStop)
+    arduinoController = 
 
     dpg.create_context()
     
@@ -196,11 +197,15 @@ if __name__ == "__main__":
                     ## Specimen Parameters Section ##
                     dpg_headers.append(dpg.add_text("Initialize Machine"))
                     with dpg.group(horizontal=True):
-                        dpg.add_button(label="Init LoadCell GPIO", callback=dc.init_load_cell)
+                        dpg.add_button(label="Init LoadCell", callback=dc.init_load_cell)
                         dpg.add_input_text(label="Load Cell COM", decimal=False, callback=print_value, tag="LOADCELL_COM_GUI", width=25, no_spaces=True, default_value=7)
                     with dpg.group(horizontal=True):
-                        dpg.add_button(label="Init Machine GPIO", callback=machineController.initGPIO)
+                        dpg.add_button(label="Init Machine", callback=machineController.initGPIO)
                         dpg.add_input_text(label="Machine COM", decimal=False, callback=print_value, tag="GPIO_COM_GUI", width=25, no_spaces=True, default_value=3)
+                    with dpg.group(horizontal=True):
+                        dpg.add_button(label="Init Arduino", callback=machineController.initGPIO)
+                        dpg.add_input_text(label="Arduino COM", decimal=False, callback=print_value, tag="ARDUINO_COM_GUI", width=25, no_spaces=True, default_value=10)
+                    ARDUINO_COM_GUI
                     with dpg.group(horizontal=True):
                         dpg.add_button(label="Zero Force", callback=dc.zero_load_cell)
                         dpg.add_button(label="Zero Displacement", callback=dc.zero_rotary_encoder)
@@ -223,6 +228,14 @@ if __name__ == "__main__":
                     dpg.add_input_text(label="(N) Force Cutoff", decimal=True, width=50, tag="user_force_cutoff")
                     dpg.add_input_text(label="(mm) Displacement Cutoff", decimal=True, width=50, tag="user_displacement_cutoff")
                         # dpg.add_input_text(label="Displacement Cutoff", decimal=True)
+                    dpg.add_separator()
+                    dpg_headers.append(dpg.add_text("Run Test"))
+                    with dpg.group(horizontal=True):
+                        dpg.add_button(label="RESET", callback=ResetTest)
+                        # dpg.add_button(label="BEGIN", callback=print_me)
+                        # dpg.add_button(label="PAUSE", callback=print_me)
+                        # dpg.add_button(label="RESUME", callback=print_me)
+                        # dpg.add_button(label="STOP", callback=print_me)
                     dpg.add_text("Manual Crosshead Controls:")
                     dpg.add_radio_button(("Auto", "Manual"), horizontal=True, tag="auto_mode", callback=print_value, default_value="Auto")
                     # dpg.add_radio_button(("10mm/s", "5mm/s", "1mm/s"), callback=UserTests.SetMoveSpeed, horizontal=True)
@@ -230,14 +243,6 @@ if __name__ == "__main__":
                         dpg.add_button(label="Move UP", callback=control_machine, user_data="move_up",tag='btn_move_up')
                         dpg.add_button(label="Move DOWN", callback=control_machine, user_data="move_down", tag='btn_move_down')
                         dpg.add_button(label="STOP", callback=machineController.motor_stop)
-                    dpg.add_separator()
-                    dpg_headers.append(dpg.add_text("Run Test"))
-                    with dpg.group(horizontal=True):
-                        dpg.add_button(label="RESET", callback=ResetTest)
-                        dpg.add_button(label="BEGIN", callback=print_me)
-                        dpg.add_button(label="PAUSE", callback=print_me)
-                        # dpg.add_button(label="RESUME", callback=print_me)
-                        dpg.add_button(label="STOP", callback=print_me)
                     dpg.add_separator()
                     dpg_headers.append(dpg.add_text("Results"))
                     with dpg.group():

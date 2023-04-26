@@ -2,7 +2,7 @@ import dearpygui.dearpygui as dpg
 from multiprocessing import Queue, Event, Process
 import serial, time
 
-import Rotary_Encoder as RE
+import ArduinoSensors as RE
 import LoadCell as LC
 
 rotation_conversions_fromIndex = ["in", "cm", "mm"]
@@ -17,12 +17,16 @@ conversion_factor = rotation_conversions["mm"]
 # # print(__name__)
 # if __name__ == "__main__":
 # rotary_data = []
-stop_event = Event()
+# stop_event = Event()
 converted_data = Queue()
 data_from_rotary_encoder = Queue()
 data_from_thermocouple = Queue()
+# p = None
+
 loadCell = LC.LoadCellInterface()
-p = None
+event_ArduinoStop = Event()
+event_ArduinoStop.clear()
+arduinoController = RE.arduino_interface(event_ArduinoStop, data_from_rotary_encoder, data_from_thermocouple)
 
 def init_load_cell():
     loadCell.init_load_cell(dpg.get_value("LOADCELL_COM_GUI"))
@@ -31,13 +35,16 @@ def zero_load_cell():
     loadCell.ZeroLoadCell(-1 * loadCell.ReadLoadCell())
 
 def begin_re_and_temp_collection():
-    global p
-    if p != None:
-        stop_event.set()
-        p.join()
-    stop_event.clear()
-    p = Process(target = RE.collect_data, name = "__child__", args = (data_from_rotary_encoder, data_from_thermocouple, stop_event))
-    p.start()
+    arduinoController.initSerialPort()
+
+# def begin_re_and_temp_collection():
+#     global p
+#     if p != None:
+#         stop_event.set()
+#         p.join()
+#     stop_event.clear()
+#     p = Process(target = RE.collect_data, name = "__child__", args = (data_from_rotary_encoder, data_from_thermocouple, stop_event))
+    # p.start()
 
 def zero_rotary_encoder():
     pass
@@ -54,11 +61,11 @@ def zero_rotary_encoder():
     #     # time.sleep(0.01)
 
 def stop_data_collection():
-    stop_event.set()
+    event_ArduinoStop.set()
 
 def collect_re_data(output_re_array_data, converted_re_output, loadcell_output):
     if data_from_rotary_encoder.empty():
-        False
+        return False
     else:
         load = loadCell.ReadZeroedValue()
         while not data_from_rotary_encoder.empty():

@@ -17,7 +17,7 @@ class LoadCellInterface():
             self.LoadCell.close()
             return True
         except:
-            print(f"ERROR(LoadCell.py): Unable to open LoadCell at COM{self.LoadCell_COM}")
+            print(f"ERROR(LoadCell.py): Unable to open LoadCell at {self.LoadCell_COM}")
             self.LoadCell = None
             self.LoadCell_COM = None
             return False

@@ -38,7 +38,6 @@ if __name__ == "__main__":
     event_MachineStop = Event()
     event_MachineStop.clear()
     machineController = machine_interface.MachineController(event_MachineStop)
-    arduinoController = 
 
     dpg.create_context()
     
@@ -181,8 +180,6 @@ if __name__ == "__main__":
             dpg.set_axis_limits_auto(axis)
         dc.zero_rotary_encoder()
 
-    dc.begin_re_and_temp_collection()
-
     with dpg.window(label="Main", tag="Main"):
         dpg.add_spacer()
         dpg.add_spacer()
@@ -203,9 +200,8 @@ if __name__ == "__main__":
                         dpg.add_button(label="Init Machine", callback=machineController.initGPIO)
                         dpg.add_input_text(label="Machine COM", decimal=False, callback=print_value, tag="GPIO_COM_GUI", width=25, no_spaces=True, default_value=3)
                     with dpg.group(horizontal=True):
-                        dpg.add_button(label="Init Arduino", callback=machineController.initGPIO)
+                        dpg.add_button(label="Init Arduino", callback=dc.begin_re_and_temp_collection)
                         dpg.add_input_text(label="Arduino COM", decimal=False, callback=print_value, tag="ARDUINO_COM_GUI", width=25, no_spaces=True, default_value=10)
-                    ARDUINO_COM_GUI
                     with dpg.group(horizontal=True):
                         dpg.add_button(label="Zero Force", callback=dc.zero_load_cell)
                         dpg.add_button(label="Zero Displacement", callback=dc.zero_rotary_encoder)

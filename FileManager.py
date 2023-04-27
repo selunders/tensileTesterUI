@@ -47,11 +47,21 @@ def cancel_callback(sender, app_data):
 
 def data_to_csv(converted_re_data, rotary_encoder_time, loadcell_data, temp_time, temp_data, stress_data, strain_data):
     global output_directory
-    with open(f"{output_directory}\\stress_strain.csv", "w") as re_data:
-        re_data.write("Strain,Stress\n")
+    with open(f"{output_directory}\\stress_strain.csv", "w") as REDataFile:
+        REDataFile.write("Strain,Stress\n")
         for i in range(len(stress_data)):
-            re_data.write(f"{strain_data[i]},{stress_data[i]}\n")
-        re_data.close()
+            REDataFile.write(f"{strain_data[i]},{stress_data[i]}\n")
+        REDataFile.close()
+    with open(f"{output_directory}\\temp_data.csv", "w") as TempDataFile:
+        TempDataFile.write("TempC,Time\n")
+        for i in range(len(temp_data)):
+            TempDataFile.write(f"{temp_data[i]},{temp_time[i]}\n")
+        TempDataFile.close()
+    with open(f"{output_directory}\\force_displacement_data.csv", "w") as ForceDisplacementFile:
+        ForceDisplacementFile.write("Force,Displacement,Time\n")
+        for i in range(len(temp_data)):
+            ForceDisplacementFile.write(f"{loadcell_data[i]},{converted_re_data[i]},{rotary_encoder_time[i]}\n")
+        ForceDisplacementFile.close()
 
 def export_data(data, test_params=""):
     # print("ERROR(FileManager.export_data): No output directory specified.")

@@ -84,5 +84,8 @@ def collect_temp_data(output_temp_data, output_array_time):
         while not data_from_thermocouple.empty():
             next_datapoint = data_from_thermocouple.get()
             output_temp_data.append(next_datapoint['tempC'])
-            output_array_time.append(next_datapoint['time'])
+            if len(output_array_time) > 0:
+                output_array_time.append(next_datapoint['time'] - output_array_time[0])
+            else:
+                output_array_time.append(next_datapoint['time'])
         return True # There is new data, it was collected

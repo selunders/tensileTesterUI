@@ -166,6 +166,13 @@ if __name__ == "__main__":
         export_results(sender)
         UserTests.Print_Results(sender)
 
+    def InitArduino():
+        temp_data.clear()
+        temp_time.clear()
+        rotary_encoder_converted_distance.clear()
+        rotary_encoder_data.clear()
+        loadcell_data.clear()
+        dc.begin_re_and_temp_collection()
 
     def ResetTest(sender):
         for dataArray in outputData:
@@ -175,7 +182,7 @@ if __name__ == "__main__":
 
         axes = ['temp_time_axis', 'temp_data_axis', 'displacement_axis', 'force_axis', 'stress_axis', 'strain_axis']
         for axis in axes:
-            dpg.set_axis_limits(axis, 0, 1)
+            dpg.set_axis_limits(axis, 0, 2)
             dpg.fit_axis_data(axis)
             dpg.set_axis_limits_auto(axis)
         dc.zero_rotary_encoder()
@@ -200,7 +207,7 @@ if __name__ == "__main__":
                         dpg.add_button(label="Init Machine", callback=machineController.initGPIO)
                         dpg.add_input_text(label="Machine COM", decimal=False, callback=print_value, tag="GPIO_COM_GUI", width=25, no_spaces=True, default_value=3)
                     with dpg.group(horizontal=True):
-                        dpg.add_button(label="Init Arduino", callback=dc.begin_re_and_temp_collection)
+                        dpg.add_button(label="Init Arduino", callback=InitArduino)
                         dpg.add_input_text(label="Arduino COM", decimal=False, callback=print_value, tag="ARDUINO_COM_GUI", width=25, no_spaces=True, default_value=10)
                     with dpg.group(horizontal=True):
                         dpg.add_button(label="Zero Force", callback=dc.zero_load_cell)
@@ -315,7 +322,8 @@ if __name__ == "__main__":
             dpg.fit_axis_data('strain_axis')
 
         if(dc.collect_temp_data(temp_data, temp_time)):
-             dpg.set_value('temp_time_series_tag', [temp_time, temp_data])
+             # Not showing first value. Used for baseline time.
+             dpg.set_value('temp_time_series_tag', [temp_time[1:], temp_data[1:]])
              dpg.set_axis_limits('temp_time_axis', max(temp_time) - 60, max(temp_time))
             #  dpg.set_axis_limits('temp_data_axis', temp_data[-1] - 5, temp_data[-1] + 5)
              dpg.fit_axis_data('temp_time_axis')

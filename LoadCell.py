@@ -11,7 +11,7 @@ class LoadCellInterface():
         self.ZeroCompensation = 0
 
     def init_load_cell(self, loadCell_COM):
-        self.LoadCell_COM = "COM"+str(loadCell_COM)
+        self.LoadCell_COM = "/dev/ttyUSB"+str(loadCell_COM)
         try:
             self.LoadCell = serial.Serial(port=self.LoadCell_COM, baudrate=115200, bytesize=8, stopbits=serial.STOPBITS_ONE)
             self.LoadCell.close()

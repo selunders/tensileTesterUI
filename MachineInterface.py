@@ -46,7 +46,7 @@ class MachineController():
         self.motor_is_running = False
 
     def initGPIO(self):
-        self.GPIO_COM = "COM"+str(dpg.get_value("GPIO_COM_GUI"))
+        self.GPIO_COM = "/dev/ttyACM"+str(dpg.get_value("GPIO_COM_GUI"))
         if self.p != None :
             self.stopEvent.set()
             print("Joining machine command consumer")

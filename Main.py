@@ -1,3 +1,6 @@
+# NOTE: to run on Raspberry Pi, you may need to run this in the terminal first: export MESA_GL_VERSION_OVERRIDE=4.5
+# export MESA_GL_VERSION_OVERRIDE=4.5
+# the dmesg command on linux will be very helpful in finding the right ttyACM and ttyUSB ports
 # Imports
 import dearpygui.dearpygui as dpg
 from multiprocessing import Process, Queue, Event

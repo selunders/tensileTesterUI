@@ -17,7 +17,7 @@ class arduino_interface():
         self.re_start_rotations = 0
 
     def initSerialPort(self):
-        self.ser_com = "COM"+str(dpg.get_value("ARDUINO_COM_GUI"))
+        self.ser_com = "/dev/ttyACM"+str(dpg.get_value("ARDUINO_COM_GUI"))
         if self.p != None :
             self.stop_event.set()
             print("Joining Arduino Process")
@@ -25,6 +25,7 @@ class arduino_interface():
             self.p = None
             self.stop_event.clear()
         try:
+            print(f"Trying to open port {self.ser_com}")
             self.ser = serial.Serial(self.ser_com, 9600, timeout=1)
             sleep(1) # May or may not be necessary
             self.ser.close()
